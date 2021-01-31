@@ -1,4 +1,4 @@
-from .Vec import Vec
+from coding_the_matrix.Vec import Vec
 
 
 def zero_vec(D):
@@ -10,10 +10,6 @@ def zero_vec(D):
 
 def setitem(v, d, val):
     v.f[d] = val
-
-
-def getitem(v, d):
-    return v.f[d] if d in v.f else 0
 
 
 def scalar_mul(v, alpha):
