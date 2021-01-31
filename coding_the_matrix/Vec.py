@@ -218,7 +218,11 @@ class Vec:
         yield from self.f.values()
 
     def __hash__(self):
-        return hash((frozenset(self.D), frozenset(self.f.items())))
+        h = hash(frozenset(self.D))
+        for k, v in sorted(self.f.items(), key=lambda x: repr(x[0])):
+            if v != 0:
+                h = hash((h, hash(v)))
+        return h
 
     def __mul__(self, other):
         if isinstance(other, Vec):
