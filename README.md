@@ -1,3 +1,3 @@
 # Coding-the-matrix
-- code for coding the matrix
-- usees poetry
+- code for coding the matrix (https://codingthematrix.com/)
+- uses poetry

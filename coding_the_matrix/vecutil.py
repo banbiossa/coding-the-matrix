@@ -8,10 +8,6 @@ def zero_vec(D):
     return Vec(D, {key: 0 for key in D})
 
 
-def setitem(v, d, val):
-    v.f[d] = val
-
-
 def scalar_mul(v, alpha):
     """
     Args:
@@ -24,28 +20,8 @@ def scalar_mul(v, alpha):
     return Vec(v.D, {key: alpha * value for key, value in v.f.items()})
 
 
-def add(u, v):
-    """
-    Returns:
-        Vec that is the sum of u and v
-    """
-    return Vec(u.D, {key: u.f.get(key, 0) + v.f.get(key, 0) for key in u.D})
-
-
-def neg(v):
-    return Vec(v.D, {key: -v.f.get(key, 0) for key in u.D})
-
-
 def list_dot(u, v):
     return sum([i * j for i, j in zip(u, v)])
-
-
-def mul(u, v):
-    return Vec(u.D, {d: value * getitem(v, d) for d, value in u.f.items()})
-
-
-def dot(u, v):
-    return sum(mul(u, v))
 
 
 def list2vec(L):

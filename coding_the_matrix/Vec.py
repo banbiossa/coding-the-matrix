@@ -1,4 +1,23 @@
+"""
+Vec implementation and doctests
+ctrl + shift + D for running doctests
+
+"""
 from numbers import Number
+import pandas as pd
+
+
+def mul(u, v):
+    """
+    Element wise multiplication
+
+    >>> v = Vec({'a','b','c', 'd'},{'a':2,'c':1,'d':3})
+    >>> u = Vec({'a','b','c', 'd'},{'a':3,'c':1,'d':2})
+    >>> mul(u, v) == Vec({'a', 'b', 'c', 'd'}, {'a': 6, 'c': 1, 'd': 6})
+    True
+    """
+    assert u.D == v.D
+    return Vec(u.D, {k: u[k] * v[k] for k in u.f.keys()})
 
 
 def getitem(v, k):
@@ -198,7 +217,7 @@ class Vec:
     def __repr__(self):
         return f"Vec({self.D}, {self.f})"
 
-    __rmul__ = scalar_mul
+    # __rmul__ = scalar_mul
     __getitem__ = getitem
     __setitem__ = setitem
     __add__ = add
@@ -227,8 +246,11 @@ class Vec:
     def __mul__(self, other):
         if isinstance(other, Vec):
             return dot(self, other)
-        else:
-            return NotImplemented  # invokes rmul
+
+        # invokes rmul
+        return self.__rmul__(other)
+
+    __rmul__ = scalar_mul
 
     def __sub__(self, other):
         # Returns a vector which is the difference
@@ -252,23 +274,4 @@ class Vec:
 
     def __str__(self):
         # pretty-printing
-        D_list = sorted(self.D, key=repr)
-        decimals = 3
-        wd = dict(
-            [
-                (k, (1 + max(len(str(k)), len("{0:.{1}G}".format(self[k], decimals)))))
-                if isinstance(self[k], int) or isinstance(self[k], float)
-                else (k, (1 + max(len(str(k)), len(str(self[k])))))
-                for k in D_list
-            ]
-        )
-        s1 = "".join(["{0:>{1}}".format(str(k), wd[k]) for k in D_list])
-        s2 = "".join(
-            [
-                "{0:>{1}.{2}G}".format(self[k], wd[k], decimals)
-                if isinstance(self[k], int) or isinstance(self[k], float)
-                else "{0:>{1}}".format(self[k], wd[k])
-                for k in D_list
-            ]
-        )
-        return "\n" + s1 + "\n" + "-" * sum(wd.values()) + "\n" + s2
+        return pd.Series(self.f).to_frame().T.to_string(index=False)
