@@ -5,6 +5,7 @@ ctrl + shift + D for running doctests
 """
 from numbers import Number
 import pandas as pd
+from coding_the_matrix.Mat import Mat, vec_mul_mat
 
 
 def mul(u, v):
@@ -246,6 +247,8 @@ class Vec:
     def __mul__(self, other):
         if isinstance(other, Vec):
             return dot(self, other)
+        if isinstance(other, Mat):
+            return vec_mul_mat(self, other)
 
         # invokes rmul
         return self.__rmul__(other)
