@@ -5,7 +5,7 @@ ctrl + shift + D for running doctests
 """
 from numbers import Number
 import pandas as pd
-from coding_the_matrix.mat import Mat, vec_mul_mat
+from coding_the_matrix.Mat import Mat, vec_mul_mat
 
 
 def mul(u, v):
