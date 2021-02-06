@@ -383,7 +383,7 @@ traitlets = "*"
 
 [[package]]
 name = "jupyterlab"
-version = "2.2.9"
+version = "1.2.18"
 description = "The JupyterLab notebook server extension."
 category = "dev"
 optional = false
@@ -391,13 +391,13 @@ python-versions = ">=3.5"
 
 [package.dependencies]
 jinja2 = ">=2.10"
-jupyterlab-server = ">=1.1.5,<2.0"
+jupyterlab-server = ">=1.0,<2.0"
 notebook = ">=4.3.1"
 tornado = "<6.0.0 || >6.0.0,<6.0.1 || >6.0.1,<6.0.2 || >6.0.2"
 
 [package.extras]
-docs = ["jsx-lexer", "recommonmark", "sphinx", "sphinx-rtd-theme", "sphinx-copybutton"]
-test = ["pytest", "pytest-check-links", "requests", "wheel", "virtualenv"]
+docs = ["sphinx", "recommonmark", "sphinx-rtd-theme", "sphinx-copybutton"]
+test = ["pytest", "pytest-check-links", "requests"]
 
 [[package]]
 name = "jupyterlab-pygments"
@@ -1018,7 +1018,7 @@ testing = ["pytest (>=3.5,<3.7.3 || >3.7.3)", "pytest-checkdocs (>=1.2.3)", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "dafe1a7b3debdee18fa101636ec6b6b6c455bf4ecea755eb1ca8948e54074be3"
+content-hash = "df43bb064d058552dabacce71a3d8600e46b80ca8d3c9cf16545b3d00cb9631e"
 
 [metadata.files]
 appdirs = [
@@ -1195,8 +1195,8 @@ jupyter-core = [
     {file = "jupyter_core-4.7.1.tar.gz", hash = "sha256:79025cb3225efcd36847d0840f3fc672c0abd7afd0de83ba8a1d3837619122b4"},
 ]
 jupyterlab = [
-    {file = "jupyterlab-2.2.9-py3-none-any.whl", hash = "sha256:59af02c26a15ec2d2862a15bc72e41ae304b406a0b0d3f4f705eeb7caf91902b"},
-    {file = "jupyterlab-2.2.9.tar.gz", hash = "sha256:3be8f8edea173753dd838c1b6d3bbcb6f5c801121f824a477025c1b6a1d33dc6"},
+    {file = "jupyterlab-1.2.18-py2.py3-none-any.whl", hash = "sha256:1ab3904746f5540f6f3a4358bdf4795ff02e117ed8c1b38efa61cf8a36f91d6b"},
+    {file = "jupyterlab-1.2.18.tar.gz", hash = "sha256:a11c081662d3cfa6f87453cdcd032e4c2805d01a1ea616178c363f2dd60ae925"},
 ]
 jupyterlab-pygments = [
     {file = "jupyterlab_pygments-0.1.2-py2.py3-none-any.whl", hash = "sha256:abfb880fd1561987efaefcb2d2ac75145d2a5d0139b1876d5be806e32f630008"},
