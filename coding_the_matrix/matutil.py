@@ -1,10 +1,10 @@
 from coding_the_matrix import Vec
-from coding_the_matrix import Mat
+from coding_the_matrix import mat
 
 
 def efficient_rowdict2mat(rowdict):
     col_labels = value(rowdict).D
-    M = Mat.Mat((set(keys(rowdict)), col_labels), {})
+    M = mat.Mat((set(keys(rowdict)), col_labels), {})
     for r in rowdict:
         for c in rowdict[r].f:
             M[r, c] = rowdict[r][c]
@@ -18,7 +18,7 @@ def identity(D, one):
     >>> identity({0,1,2}, 1)
     Mat(({0, 1, 2}, {0, 1, 2}), {(0, 0): 1, (1, 1): 1, (2, 2): 1})
     """
-    return Mat.Mat((D, D), {(d, d): one for d in D})
+    return mat.Mat((D, D), {(d, d): one for d in D})
 
 
 def keys(d):
@@ -39,10 +39,10 @@ def mat2rowdict(A):
     """Given a matrix, return a dictionary mapping row labels of A to rows of A
         e.g.:
 
-    >>> M = Mat.Mat(({0, 1, 2}, {0, 1}), {(0, 1): 1, (2, 0): 8, (1, 0): 4, (0, 0): 3, (2, 1): -2})
+    >>> M = mat.Mat(({0, 1, 2}, {0, 1}), {(0, 1): 1, (2, 0): 8, (1, 0): 4, (0, 0): 3, (2, 1): -2})
         >>> mat2rowdict(M)
         {0: Vec({0, 1},{0: 3, 1: 1}), 1: Vec({0, 1},{0: 4, 1: 0}), 2: Vec({0, 1},{0: 8, 1: -2})}
-        >>> mat2rowdict(Mat.Mat(({0,1},{0,1}),{}))
+        >>> mat2rowdict(mat.Mat(({0,1},{0,1}),{}))
         {0: Vec({0, 1},{0: 0, 1: 0}), 1: Vec({0, 1},{0: 0, 1: 0})}
     """
     return {
@@ -53,10 +53,10 @@ def mat2rowdict(A):
 def mat2coldict(A):
     """Given a matrix, return a dictionary mapping column labels of A to columns of A
     e.g.:
-    >>> M = Mat.Mat(({0, 1, 2}, {0, 1}), {(0, 1): 1, (2, 0): 8, (1, 0): 4, (0, 0): 3, (2, 1): -2})
+    >>> M = mat.Mat(({0, 1, 2}, {0, 1}), {(0, 1): 1, (2, 0): 8, (1, 0): 4, (0, 0): 3, (2, 1): -2})
     >>> mat2coldict(M)
     {0: Vec({0, 1, 2},{0: 3, 1: 4, 2: 8}), 1: Vec({0, 1, 2},{0: 1, 1: 0, 2: -2})}
-    >>> mat2coldict(Mat.Mat(({0,1},{0,1}),{}))
+    >>> mat2coldict(mat.Mat(({0,1},{0,1}),{}))
     {0: Vec({0, 1},{0: 0, 1: 0}), 1: Vec({0, 1},{0: 0, 1: 0})}
     """
     return {
@@ -84,7 +84,7 @@ def coldict2mat(coldict):
     True
     """
     row_labels = value(coldict).D
-    return Mat.Mat(
+    return mat.Mat(
         (row_labels, set(keys(coldict))),
         {(r, c): coldict[c][r] for c in keys(coldict) for r in row_labels},
     )
@@ -110,7 +110,7 @@ def rowdict2mat(rowdict):
     True
     """
     col_labels = value(rowdict).D
-    return Mat.Mat(
+    return mat.Mat(
         (set(keys(rowdict)), col_labels),
         {(r, c): rowdict[r][c] for r in keys(rowdict) for c in col_labels},
     )
@@ -130,14 +130,14 @@ def listlist2mat(L):
     <BLANKLINE>
     """
     m, n = len(L), len(L[0])
-    return Mat.Mat(
+    return mat.Mat(
         (set(range(m)), set(range(n))),
         {(r, c): L[r][c] for r in range(m) for c in range(n)},
     )
 
 
 def submatrix(M, rows, cols):
-    return Mat.Mat(
+    return mat.Mat(
         (M.D[0] & rows, M.D[1] & cols),
         {(r, c): val for (r, c), val in M.f.items() if r in rows and c in cols},
     )
