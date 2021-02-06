@@ -1,19 +1,19 @@
 import pandas as pd
-from .Vec import Vec
-from .matutil import mat2coldict, mat2rowdict
+from coding_the_matrix import Vec
+from coding_the_matrix.matutil import mat2coldict, mat2rowdict
 
 
 def vec_mul_mat(u, M):
     """vec * matrix multiplication"""
     assert u.D == M.D[0]
     # get a row representation of matrix
-    return Vec(M.D[1], {k: u * vec for k, vec in mat2coldict(M).items()})
+    return Vec.Vec(M.D[1], {k: u * vec for k, vec in mat2coldict(M).items()})
 
 
 def mat_mul_vec(M, u):
     """matrix * vec multiplication"""
     assert M.D[1] == u.D
-    return Vec(M.D[0], {k: vec * u for k, vec in mat2rowdict(M).items()})
+    return Vec.Vec(M.D[0], {k: vec * u for k, vec in mat2rowdict(M).items()})
 
 
 class Mat:
@@ -26,16 +26,23 @@ class Mat:
         assert len(value) == 2
         return self.f.get(value, 0)
 
+    def __setitem__(self, key, value):
+        assert isinstance(key, tuple)
+        assert len(key) == 2
+        assert key[0] in self.D[0]
+        assert key[1] in self.D[1]
+        self.f[key] = value
+
     def __mul__(self, other):
         """M * u"""
-        if isinstance(other, Vec):
+        if isinstance(other, Vec.Vec):
             return mat_mul_vec(self, other)
         # matrix multiplication necessary
         return NotImplemented
 
     def __rmul__(self, other):
         """u * M"""
-        if isinstance(other, Vec):
+        if isinstance(other, Vec.Vec):
             return vec_mul_mat(other, self)
         return NotImplemented
 

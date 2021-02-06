@@ -1,10 +1,10 @@
-from .Vec import Vec
-from .Mat import Mat
+from coding_the_matrix import Vec
+from coding_the_matrix import Mat
 
 
 def efficient_rowdict2mat(rowdict):
     col_labels = value(rowdict).D
-    M = Mat((set(keys(rowdict)), col_labels), {})
+    M = Mat.Mat((set(keys(rowdict)), col_labels), {})
     for r in rowdict:
         for c in rowdict[r].f:
             M[r, c] = rowdict[r][c]
@@ -18,7 +18,7 @@ def identity(D, one):
     >>> identity({0,1,2}, 1)
     Mat(({0, 1, 2}, {0, 1, 2}), {(0, 0): 1, (1, 1): 1, (2, 2): 1})
     """
-    return Mat((D, D), {(d, d): one for d in D})
+    return Mat.Mat((D, D), {(d, d): one for d in D})
 
 
 def keys(d):
@@ -39,25 +39,29 @@ def mat2rowdict(A):
     """Given a matrix, return a dictionary mapping row labels of A to rows of A
         e.g.:
 
-    >>> M = Mat(({0, 1, 2}, {0, 1}), {(0, 1): 1, (2, 0): 8, (1, 0): 4, (0, 0): 3, (2, 1): -2})
+    >>> M = Mat.Mat(({0, 1, 2}, {0, 1}), {(0, 1): 1, (2, 0): 8, (1, 0): 4, (0, 0): 3, (2, 1): -2})
         >>> mat2rowdict(M)
         {0: Vec({0, 1},{0: 3, 1: 1}), 1: Vec({0, 1},{0: 4, 1: 0}), 2: Vec({0, 1},{0: 8, 1: -2})}
-        >>> mat2rowdict(Mat(({0,1},{0,1}),{}))
+        >>> mat2rowdict(Mat.Mat(({0,1},{0,1}),{}))
         {0: Vec({0, 1},{0: 0, 1: 0}), 1: Vec({0, 1},{0: 0, 1: 0})}
     """
-    return {row: Vec(A.D[1], {col: A[row, col] for col in A.D[1]}) for row in A.D[0]}
+    return {
+        row: Vec.Vec(A.D[1], {col: A[row, col] for col in A.D[1]}) for row in A.D[0]
+    }
 
 
 def mat2coldict(A):
     """Given a matrix, return a dictionary mapping column labels of A to columns of A
     e.g.:
-    >>> M = Mat(({0, 1, 2}, {0, 1}), {(0, 1): 1, (2, 0): 8, (1, 0): 4, (0, 0): 3, (2, 1): -2})
+    >>> M = Mat.Mat(({0, 1, 2}, {0, 1}), {(0, 1): 1, (2, 0): 8, (1, 0): 4, (0, 0): 3, (2, 1): -2})
     >>> mat2coldict(M)
     {0: Vec({0, 1, 2},{0: 3, 1: 4, 2: 8}), 1: Vec({0, 1, 2},{0: 1, 1: 0, 2: -2})}
-    >>> mat2coldict(Mat(({0,1},{0,1}),{}))
+    >>> mat2coldict(Mat.Mat(({0,1},{0,1}),{}))
     {0: Vec({0, 1},{0: 0, 1: 0}), 1: Vec({0, 1},{0: 0, 1: 0})}
     """
-    return {col: Vec(A.D[0], {row: A[row, col] for row in A.D[0]}) for col in A.D[1]}
+    return {
+        col: Vec.Vec(A.D[0], {row: A[row, col] for row in A.D[0]}) for col in A.D[1]
+    }
 
 
 def coldict2mat(coldict):
@@ -70,8 +74,8 @@ def coldict2mat(coldict):
     If coldict is a list then {0...len(coldict)-1} will be the column-labels of the Mat.
     e.g.:
 
-    >>> A = {0:Vec({0,1},{0:1,1:2}),1:Vec({0,1},{0:3,1:4})}
-    >>> B = [Vec({0,1},{0:1,1:2}),Vec({0,1},{0:3,1:4})]
+    >>> A = {0:Vec.Vec({0,1},{0:1,1:2}),1:Vec.Vec({0,1},{0:3,1:4})}
+    >>> B = [Vec.Vec({0,1},{0:1,1:2}),Vec.Vec({0,1},{0:3,1:4})]
     >>> mat2coldict(coldict2mat(A)) == A
     True
     >>> coldict2mat(A)
@@ -80,7 +84,7 @@ def coldict2mat(coldict):
     True
     """
     row_labels = value(coldict).D
-    return Mat(
+    return Mat.Mat(
         (row_labels, set(keys(coldict))),
         {(r, c): coldict[c][r] for c in keys(coldict) for r in row_labels},
     )
@@ -96,8 +100,8 @@ def rowdict2mat(rowdict):
     If rowdict is a list then {0...len(rowdict)-1} will be the row-labels of the Mat.
     e.g.:
 
-    >>> A = {0:Vec({0,1},{0:1,1:2}),1:Vec({0,1},{0:3,1:4})}
-    >>> B = [Vec({0,1},{0:1,1:2}),Vec({0,1},{0:3,1:4})]
+    >>> A = {0:Vec.Vec({0,1},{0:1,1:2}),1:Vec.Vec({0,1},{0:3,1:4})}
+    >>> B = [Vec.Vec({0,1},{0:1,1:2}),Vec.Vec({0,1},{0:3,1:4})]
     >>> mat2rowdict(rowdict2mat(A)) == A
     True
     >>> rowdict2mat(A)
@@ -106,7 +110,7 @@ def rowdict2mat(rowdict):
     True
     """
     col_labels = value(rowdict).D
-    return Mat(
+    return Mat.Mat(
         (set(keys(rowdict)), col_labels),
         {(r, c): rowdict[r][c] for r in keys(rowdict) for c in col_labels},
     )
@@ -126,14 +130,14 @@ def listlist2mat(L):
     <BLANKLINE>
     """
     m, n = len(L), len(L[0])
-    return Mat(
+    return Mat.Mat(
         (set(range(m)), set(range(n))),
         {(r, c): L[r][c] for r in range(m) for c in range(n)},
     )
 
 
 def submatrix(M, rows, cols):
-    return Mat(
+    return Mat.Mat(
         (M.D[0] & rows, M.D[1] & cols),
         {(r, c): val for (r, c), val in M.f.items() if r in rows and c in cols},
     )
