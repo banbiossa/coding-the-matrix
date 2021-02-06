@@ -52,3 +52,9 @@ class Mat:
         df = pd.DataFrame.from_dict(row_dict, orient="index")
         df.columns = C
         return df.to_string()
+
+    def transpose(self):
+        R, C = self.D
+        D = (C, R)
+        f = {(c, r): v for (r, c), v in self.f.items()}
+        return Mat(D, f)

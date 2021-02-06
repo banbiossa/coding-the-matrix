@@ -245,14 +245,10 @@ class Vec:
         return h
 
     def __mul__(self, other):
-        print("check vec")
         if isinstance(other, Vec):
-            print("is vec")
             return dot(self, other)
 
-        print("check mat")
         if isinstance(other, Mat):
-            print("is mat")
             return vec_mul_mat(self, other)
 
         # invokes rmul
