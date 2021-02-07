@@ -22,7 +22,10 @@ class Mat:
         self.f = function
 
     def __repr__(self):
-        return "Mat({}, {})".format(self.D, self.f)
+        D0 = set(sorted(self.D[0]))
+        D1 = set(sorted(self.D[1]))
+        f = {k: self.f[k] for k in sorted(self.f)}
+        return "Mat(({}, {}), {})".format(D0, D1, f)
 
     def __eq__(self, other):
         return self.D[0] == other.D[0] and self.D[1] == other.D[1] and self.f == other.f

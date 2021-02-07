@@ -40,10 +40,10 @@ def mat2rowdict(A):
         e.g.:
 
     >>> M = Mat.Mat(({0, 1, 2}, {0, 1}), {(0, 1): 1, (2, 0): 8, (1, 0): 4, (0, 0): 3, (2, 1): -2})
-        >>> mat2rowdict(M)
-        {0: Vec({0, 1},{0: 3, 1: 1}), 1: Vec({0, 1},{0: 4, 1: 0}), 2: Vec({0, 1},{0: 8, 1: -2})}
-        >>> mat2rowdict(Mat.Mat(({0,1},{0,1}),{}))
-        {0: Vec({0, 1},{0: 0, 1: 0}), 1: Vec({0, 1},{0: 0, 1: 0})}
+    >>> mat2rowdict(M)
+    {0: Vec({0, 1},{0: 3, 1: 1}), 1: Vec({0, 1},{0: 4, 1: 0}), 2: Vec({0, 1},{0: 8, 1: -2})}
+    >>> mat2rowdict(Mat.Mat(({0,1},{0,1}),{}))
+    {0: Vec({0, 1},{0: 0, 1: 0}), 1: Vec({0, 1},{0: 0, 1: 0})}
     """
     return {
         row: Vec.Vec(A.D[1], {col: A[row, col] for col in A.D[1]}) for row in A.D[0]
@@ -79,7 +79,7 @@ def coldict2mat(coldict):
     >>> mat2coldict(coldict2mat(A)) == A
     True
     >>> coldict2mat(A)
-    Mat(({0, 1}, {0, 1}), {(0, 1): 3, (1, 0): 2, (0, 0): 1, (1, 1): 4})
+    Mat(({0, 1}, {0, 1}), {(0, 0): 1, (0, 1): 3, (1, 0): 2, (1, 1): 4})
     >>> coldict2mat(A) == coldict2mat(B)
     True
     """
