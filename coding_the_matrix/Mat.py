@@ -59,6 +59,13 @@ class Mat:
         df.columns = C
         return df.to_string()
 
+    def to_pandas(self):
+        R, C = self.D
+        row_dict = {r: [self.f.get((r, c), 0) for c in C] for r in R}
+        df = pd.DataFrame.from_dict(row_dict, orient="index")
+        df.columns = C
+        return df
+
     def transpose(self):
         R, C = self.D
         D = (C, R)
