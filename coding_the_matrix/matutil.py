@@ -1,5 +1,5 @@
-from coding_the_matrix import Vec
-from coding_the_matrix import Mat
+from coding_the_matrix import Vec, Mat, GF2
+import itertools
 
 
 def efficient_rowdict2mat(rowdict):
@@ -141,3 +141,19 @@ def submatrix(M, rows, cols):
         (M.D[0] & rows, M.D[1] & cols),
         {(r, c): val for (r, c), val in M.f.items() if r in rows and c in cols},
     )
+
+
+def button_vectors(n):
+    """Button vectors of n*n"""
+    D = {(x, y) for x, y in itertools.product(range(n), range(n))}
+    vecdict = {
+        (i, j): Vec.Vec(
+            D,
+            dict(
+                [((x, j), GF2.one) for x in range(max(i - 1, 0), min(i + 2, n))]
+                + [((i, y), GF2.one) for y in range(max(j - 1, 0), min(j + 2, n))]
+            ),
+        )
+        for (i, j) in D
+    }
+    return vecdict

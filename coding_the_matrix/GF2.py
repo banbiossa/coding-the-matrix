@@ -44,6 +44,9 @@ class One:
     def __str__(self):
         return "1"
 
+    def __abs__(self):
+        return 1
+
     __repr__ = __str__
 
     def __neg__(self):
