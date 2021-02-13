@@ -43,6 +43,7 @@ def test_solve():
         "putty": v_putty,
         "shooter": v_shooter,
     }
+    #
     M = matutil.rowdict2mat(rowdict)
     b = Vec(
         {"metal", "concrete", "water", "electricity", "plastic"},
@@ -56,15 +57,27 @@ def test_solve():
     )
     A = M.transpose()
     x = solve(A, b)
-    residual = b - M * x
+    residual = b - x * M
     assert np.isclose(residual * residual, 0)
 
 
-def test_buttons():
+def test_buttons_5():
     # 5 * 5 の行列
     vecdict = matutil.button_vectors(5)
     B = matutil.rowdict2mat(vecdict)
     b = matutil.value(vecdict)
     s = Vec(b.D, {(2, 2): one})
     sol = solve(B, s)
-    assert B * sol == s
+    should_be_s = B * sol
+    assert should_be_s == s
+
+
+def test_buttons_2():
+    # 2 by 2
+    vecdict = matutil.button_vectors(2)
+    B = matutil.rowdict2mat(vecdict)
+    b = matutil.value(vecdict)
+    s = Vec(b.D, {(1, 1): one})
+    sol = solve(B, s)
+    should_be_s = B * sol
+    assert should_be_s == s

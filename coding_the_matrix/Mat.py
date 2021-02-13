@@ -21,6 +21,9 @@ class Mat:
         self.D = labels
         self.f = function
 
+    def copy(self):
+        return self.__class__(self.D, self.f.copy())
+
     def __repr__(self):
         return "Mat({}, {})".format(self.D, self.f)
 

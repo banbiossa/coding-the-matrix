@@ -216,7 +216,8 @@ class Vec:
         self.f = function
 
     def __repr__(self):
-        return f"Vec({self.D}, {self.f})"
+        non_zero = {k: v for k, v in self.f.items() if v != 0}
+        return f"Vec(self.D, {non_zero})"
 
     # __rmul__ = scalar_mul
     __getitem__ = getitem
