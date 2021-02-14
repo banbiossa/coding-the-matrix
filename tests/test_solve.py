@@ -70,6 +70,8 @@ def test_buttons_5():
     sol = solve(B, s)
     should_be_s = B * sol
     assert should_be_s == s
+    print(f"\n{sol=}")
+    print([(i, j) for (i, j) in sol.D if sol[i, j] == one])
 
 
 def test_buttons_2():
