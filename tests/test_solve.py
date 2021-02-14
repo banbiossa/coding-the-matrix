@@ -4,6 +4,8 @@ from coding_the_matrix.GF2 import one
 from coding_the_matrix import matutil
 import numpy as np
 
+from matutil import rowdict2mat
+
 
 def test_get_max_row():
     rowdict = {
@@ -83,3 +85,22 @@ def test_buttons_2():
     sol = solve(B, s)
     should_be_s = B * sol
     assert should_be_s == s
+
+
+def test_solve_radio():
+    D = {"radio", "sensor", "memory", "CPU"}
+    v0 = Vec(D, {"radio": 0.1, "CPU": 0.3})
+    v1 = Vec(D, {"sensor": 0.2, "CPU": 0.4})
+    v2 = Vec(D, {"memory": 0.3, "CPU": 0.1})
+    v3 = Vec(D, {"memory": 0.5, "CPU": 0.4})
+    v4 = Vec(D, {"radio": 0.2, "CPU": 0.5})
+    b = Vec(set(range(5)), {0: 140.0, 1: 170.0, 2: 60.0, 3: 170.0, 4: 250.0})
+    A = rowdict2mat([v0, v1, v2, v3, v4])
+    rate = solve(A, b)
+    answer = Vec(D, {"radio": 500, "sensor": 250, "memory": 100, "CPU": 300})
+    err = rate - answer
+    assert np.isclose(err * err, 0)
+
+    actual = A * rate
+    residual = b - actual
+    assert np.isclose(residual * residual, 0)

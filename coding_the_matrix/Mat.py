@@ -74,3 +74,14 @@ class Mat:
         D = (C, R)
         f = {(c, r): v for (r, c), v in self.f.items()}
         return Mat(D, f)
+
+    def pprint(self, rows=None, cols=None):
+        """Reorder the matrix (useful for triangular matrices)"""
+        df = self.to_pandas()
+        R, C = self.D
+        if rows is not None:
+            assert set(rows) == R
+            df = df.loc[rows, :]
+        if cols is not None:
+            assert set(cols) == C
+            df = df.loc[:, cols]
