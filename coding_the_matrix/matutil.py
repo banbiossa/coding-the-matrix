@@ -1,5 +1,6 @@
 from coding_the_matrix import Vec, Mat, GF2
 import itertools
+from tqdm import tqdm
 
 
 def efficient_rowdict2mat(rowdict):
@@ -157,3 +158,23 @@ def button_vectors(n):
         for (i, j) in D
     }
     return vecdict
+
+
+def is_triangular(M):
+    R_orig, C_orig = M.D
+    # for a certain R -> C mapping
+    for R, C in tqdm(
+        itertools.product(
+            itertools.permutations(R_orig), itertools.permutations(C_orig)
+        )
+    ):
+        # if f == 0 for all j > i, return True
+        if all(
+            [
+                M[(R[i], C[j])] == 0
+                for (i, j) in itertools.product(range(len(R)), range(len(C)))
+                if i > j
+            ]
+        ):
+            return True, R, C
+    return False, None, None

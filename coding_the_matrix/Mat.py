@@ -85,3 +85,4 @@ class Mat:
         if cols is not None:
             assert set(cols) == C
             df = df.loc[:, cols]
+        return df
