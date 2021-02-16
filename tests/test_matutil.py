@@ -50,3 +50,18 @@ def test_mat2rowdict():
         0: Vec({0, 1}, {0: 0, 1: 0}),
         1: Vec({0, 1}, {0: 0, 1: 0}),
     }
+
+
+def test_mat2rowdict_2():
+    M = Mat(
+        ({"radio", "sensor"}, {"memory", "CPU"}),
+        {
+            ("radio", "memory"): 3,
+            ("radio", "CPU"): 1,
+            ("sensor", "memory"): 2,
+            ("sensor", "CPU"): 4,
+        },
+    )
+    rowdict = mat2rowdict(M)
+    assert set(rowdict.keys()) == M.D[0]
+    assert rowdict["radio"] == Vec(M.D[1], {"memory": 3, "CPU": 1})

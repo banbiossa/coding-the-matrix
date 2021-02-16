@@ -16,6 +16,14 @@ def mat_mul_vec(M, u):
     return Vec.Vec(M.D[0], {k: vec * u for k, vec in mat2rowdict(M).items()})
 
 
+def mat_mul_mat(U, V):
+    """matrix * matrix multiplication"""
+    rowdict = mat2rowdict(U)
+    for row in rowdict:
+        new_row = row * V
+    pass
+
+
 class Mat:
     def __init__(self, labels, function):
         self.D = labels
