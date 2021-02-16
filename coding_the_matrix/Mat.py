@@ -1,28 +1,28 @@
 import pandas as pd
 from coding_the_matrix import Vec
-from coding_the_matrix.matutil import mat2coldict, mat2rowdict, rowdict2mat
+from coding_the_matrix import matutil
 
 
 def vec_mul_mat(u, M):
     """vec * matrix multiplication"""
     assert u.D == M.D[0]
     # get a row representation of matrix
-    return Vec.Vec(M.D[1], {k: u * vec for k, vec in mat2coldict(M).items()})
+    return Vec.Vec(M.D[1], {k: u * vec for k, vec in matutil.mat2coldict(M).items()})
 
 
 def mat_mul_vec(M, u):
     """matrix * vec multiplication"""
     assert M.D[1] == u.D
-    return Vec.Vec(M.D[0], {k: vec * u for k, vec in mat2rowdict(M).items()})
+    return Vec.Vec(M.D[0], {k: vec * u for k, vec in matutil.mat2rowdict(M).items()})
 
 
 def mat_mul_mat(U, V):
     """matrix * matrix multiplication"""
     assert U.D[1] == V.D[0]
-    rowdict = mat2rowdict(U)
+    rowdict = matutil.mat2rowdict(U)
     for key, row in rowdict.items():
         rowdict[key] = row * V
-    return rowdict2mat(rowdict)
+    return matutil.rowdict2mat(rowdict)
 
 
 class Mat:
