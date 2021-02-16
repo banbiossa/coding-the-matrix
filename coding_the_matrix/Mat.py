@@ -1,6 +1,6 @@
 import pandas as pd
 from coding_the_matrix import Vec
-from coding_the_matrix.matutil import mat2coldict, mat2rowdict
+from coding_the_matrix.matutil import mat2coldict, mat2rowdict, rowdict2mat
 
 
 def vec_mul_mat(u, M):
@@ -18,10 +18,11 @@ def mat_mul_vec(M, u):
 
 def mat_mul_mat(U, V):
     """matrix * matrix multiplication"""
+    assert U.D[1] == V.D[0]
     rowdict = mat2rowdict(U)
-    for row in rowdict:
-        new_row = row * V
-    pass
+    for key, row in rowdict.items():
+        rowdict[key] = row * V
+    return rowdict2mat(rowdict)
 
 
 class Mat:
@@ -54,7 +55,8 @@ class Mat:
         """M * u"""
         if isinstance(other, Vec.Vec):
             return mat_mul_vec(self, other)
-        # matrix multiplication necessary
+        if isinstance(other, self.__class__):
+            return mat_mul_mat(self, other)
         return NotImplemented
 
     def __rmul__(self, other):

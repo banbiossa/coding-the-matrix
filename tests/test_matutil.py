@@ -1,6 +1,15 @@
+import itertools
+
 from coding_the_matrix.Vec import Vec
-from coding_the_matrix.matutil import mat2rowdict, rowdict2mat, coldict2mat, mat2coldict
-from coding_the_matrix.Mat import Mat
+from coding_the_matrix.matutil import (
+    mat2rowdict,
+    rowdict2mat,
+    coldict2mat,
+    mat2coldict,
+    listlist2mat,
+)
+from coding_the_matrix.Mat import Mat, mat_mul_mat
+import numpy as np
 
 
 def test_rowdict2mat():
@@ -65,3 +74,41 @@ def test_mat2rowdict_2():
     rowdict = mat2rowdict(M)
     assert set(rowdict.keys()) == M.D[0]
     assert rowdict["radio"] == Vec(M.D[1], {"memory": 3, "CPU": 1})
+
+
+def test_mat_mul_mat():
+    # E * E = E
+    U = listlist2mat([[1, 0], [0, 1]])
+    V = listlist2mat([[1, 0], [0, 1]])
+    A = mat_mul_mat(U, V)
+    assert A == U
+
+
+def test_mat_mul_mat_2():
+    # 45 * 2 = 90
+    _sqrt2 = 1 / np.sqrt(2)
+    U = listlist2mat([[_sqrt2, -_sqrt2], [_sqrt2, _sqrt2]])
+    V = listlist2mat([[0, -1], [1, 0]])
+    A = mat_mul_mat(U, U)
+    for i, j in itertools.product(*A.D):
+        assert np.isclose(A[i, j], V[i, j])
+
+
+def test_mat_mul():
+    # 45 * 2 = 90
+    _sqrt2 = 1 / np.sqrt(2)
+    U = listlist2mat([[_sqrt2, -_sqrt2], [_sqrt2, _sqrt2]])
+    V = listlist2mat([[0, -1], [1, 0]])
+    A = U * U
+    for i, j in itertools.product(*A.D):
+        assert np.isclose(A[i, j], V[i, j])
+
+
+def test_mat_mul_2():
+    # 135 * 2 = 270
+    _sqrt2 = 1 / np.sqrt(2)
+    U = listlist2mat([[-_sqrt2, -_sqrt2], [_sqrt2, -_sqrt2]])
+    V = listlist2mat([[0, 1], [-1, 0]])
+    A = U * U
+    for i, j in itertools.product(*A.D):
+        assert np.isclose(A[i, j], V[i, j])
