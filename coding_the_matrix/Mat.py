@@ -1,3 +1,5 @@
+import itertools
+
 import pandas as pd
 from coding_the_matrix import Vec
 from coding_the_matrix import matutil
@@ -27,8 +29,16 @@ def mat_mul_mat(U, V):
 
 class Mat:
     def __init__(self, labels, function):
+        assert len(labels) == 2
+        assert all([isinstance(d, set) for d in labels])
+        assert all([isinstance(k, tuple) and len(k) == 2 for k in function.keys()])
+        assert all([i in labels[0] and j in labels[1] for (i, j) in function.keys()])
         self.D = labels
         self.f = function
+
+    @property
+    def shape(self):
+        return len(self.D[0]), len(self.D[1])
 
     def copy(self):
         return self.__class__(self.D, self.f.copy())
@@ -63,6 +73,31 @@ class Mat:
         """u * M"""
         if isinstance(other, Vec.Vec):
             return vec_mul_mat(other, self)
+        return NotImplemented
+
+    def __add__(self, other):
+        # add each item if other is matrix
+        if isinstance(other, Mat):
+            assert other.D == self.D
+            return Mat(
+                self.D,
+                {
+                    k: (self[k] + other[k])
+                    for k in set(self.f.keys()) | set(other.f.keys())
+                },
+            )
+        return NotImplemented
+
+    def __sub__(self, other):
+        if isinstance(other, Mat):
+            assert other.D == self.D
+            return Mat(
+                self.D,
+                {
+                    k: (self[k] - other[k])
+                    for k in set(self.f.keys()) | set(other.f.keys())
+                },
+            )
         return NotImplemented
 
     def __str__(self):

@@ -1,7 +1,6 @@
 """
 Vec implementation and doctests
 ctrl + shift + D for running doctests
-
 """
 from numbers import Number
 import pandas as pd
@@ -246,16 +245,19 @@ class Vec:
         return h
 
     def __mul__(self, other):
-        if isinstance(other, Vec):
+        if isinstance(other, self.__class__):
             return dot(self, other)
 
         if isinstance(other, Mat.Mat):
             return Mat.vec_mul_mat(self, other)
 
-        # invokes rmul
-        return self.__rmul__(other)
+        if isinstance(other, Number):
+            return scalar_mul(self, other)
 
-    __rmul__ = scalar_mul
+        raise NotImplemented
+
+    def __rmul__(self, other):
+        return other * self
 
     def __sub__(self, other):
         # Returns a vector which is the difference
@@ -280,3 +282,12 @@ class Vec:
     def __str__(self):
         # pretty-printing
         return pd.Series(self.f).to_frame().T.to_string(index=False)
+
+    def __len__(self):
+        return len(self.D)
+
+    def sum(self):
+        return sum(self.f.values())
+
+    def non_null(self):
+        return sum(v != 0 for v in self.f.values())
