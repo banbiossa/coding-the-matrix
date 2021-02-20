@@ -4,6 +4,7 @@ from coding_the_matrix.matutil import (
     rowdict2mat,
     coldict2mat,
     mat2coldict,
+    listlist2mat,
 )
 from coding_the_matrix.Mat import Mat
 
@@ -70,3 +71,34 @@ def test_mat2rowdict_2():
     rowdict = mat2rowdict(M)
     assert set(rowdict.keys()) == M.D[0]
     assert rowdict["radio"] == Vec(M.D[1], {"memory": 3, "CPU": 1})
+
+
+def test_listlist2mat():
+    A = listlist2mat(
+        (
+            [
+                [
+                    3,
+                    1,
+                ],
+                [4, 0],
+                [8, -2],
+            ]
+        )
+    )
+    M = Mat(
+        ({0, 1, 2}, {0, 1}), {(0, 1): 1, (2, 0): 8, (1, 0): 4, (0, 0): 3, (2, 1): -2}
+    )
+    assert A == M
+
+
+def test_listlist2mat_rows():
+    A = listlist2mat([[0, 1], [1, 0]], rows=["a", "b"])
+    M = Mat(({"a", "b"}, {0, 1}), {("a", 1): 1, ("b", 0): 1})
+    assert A == M
+
+
+def test_listlist2mat_cols():
+    A = listlist2mat([[0, 1], [1, 0]], cols=["c", "d"])
+    M = Mat(({0, 1}, {"c", "d"}), {(0, "d"): 1, (1, "c"): 1})
+    assert A == M

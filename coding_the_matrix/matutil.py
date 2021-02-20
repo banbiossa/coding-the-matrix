@@ -117,23 +117,37 @@ def rowdict2mat(rowdict):
     )
 
 
-def listlist2mat(L):
-    """Given a list of lists of field elements, return a matrix whose ith row consists
+def listlist2mat(
+    L,
+    rows=None,
+    cols=None,
+):
+    """Given a list of lists of field elements, return a matrix.
+
+    If rows or cols are empty, the ith row consists
     of the elements of the ith list.  The row-labels are {0...len(L)}, and the
     column-labels are {0...len(L[0])}
     >>> A=listlist2mat([[10,20,30,40],[50,60,70,80]])
     >>> print(A)
-    <BLANKLINE>
-            0  1  2  3
-         -------------
-     0  |  10 20 30 40
-     1  |  50 60 70 80
-    <BLANKLINE>
+        0   1   2   3
+    0  10  20  30  40
+    1  50  60  70  80
     """
-    m, n = len(L), len(L[0])
+    if rows is None:
+        rows = list(range(len(L)))
+    if cols is None:
+        cols = list(range(len(L[0])))
+    assert isinstance(rows, list), f"Must be list not {type(rows)}, order is important."
+    assert isinstance(cols, list), f"Must be list not {type(cols)}, order is important."
+    assert len(L) == len(rows)
+    assert len(L[0]) == len(cols)
     return Mat.Mat(
-        (set(range(m)), set(range(n))),
-        {(r, c): L[r][c] for r in range(m) for c in range(n)},
+        (rows, cols),
+        {
+            (r, c): L[ir][ic]
+            for (ir, r) in enumerate(rows)
+            for (ic, c) in enumerate(cols)
+        },
     )
 
 

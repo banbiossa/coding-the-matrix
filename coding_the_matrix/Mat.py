@@ -1,5 +1,3 @@
-import itertools
-
 import pandas as pd
 from coding_the_matrix import Vec
 from coding_the_matrix import matutil
@@ -29,6 +27,8 @@ def mat_mul_mat(U, V):
 
 class Mat:
     def __init__(self, labels, function):
+        self._original_labels = (item.copy() for item in labels)
+        labels = [set(label) for label in labels]
         assert len(labels) == 2
         assert all([isinstance(d, set) for d in labels])
         assert all([isinstance(k, tuple) and len(k) == 2 for k in function.keys()])
@@ -46,8 +46,20 @@ class Mat:
     def __repr__(self):
         return "Mat({}, {})".format(self.D, self.f)
 
-    def __eq__(self, other):
-        return self.D[0] == other.D[0] and self.D[1] == other.D[1] and self.f == other.f
+    def __eq__(self, other) -> bool:
+        """
+
+        Parameters
+        ----------
+        other : Mat
+        """
+        same_class = isinstance(other, Mat)
+        same_D = self.D == other.D
+        same_f = self._sparse_f() == other._sparse_f()
+        return same_D and same_f and same_class
+
+    def _sparse_f(self):
+        return {k: v for k, v in self.f.items() if v != 0}
 
     def __getitem__(self, value):
         assert isinstance(value, tuple)
@@ -101,7 +113,7 @@ class Mat:
         return NotImplemented
 
     def __str__(self):
-        R, C = self.D
+        R, C = self._original_labels
         row_dict = {r: [self.f.get((r, c), 0) for c in C] for r in R}
         df = pd.DataFrame.from_dict(row_dict, orient="index")
         df.columns = C
