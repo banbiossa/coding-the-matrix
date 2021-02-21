@@ -137,8 +137,8 @@ def listlist2mat(
         rows = list(range(len(L)))
     if cols is None:
         cols = list(range(len(L[0])))
-    assert isinstance(rows, list), f"Must be list not {type(rows)}, order is important."
-    assert isinstance(cols, list), f"Must be list not {type(cols)}, order is important."
+    # assert isinstance(rows, list), f"Must be list not {type(rows)}, order is important."
+    # assert isinstance(cols, list), f"Must be list not {type(cols)}, order is important."
     assert len(L) == len(rows)
     assert len(L[0]) == len(cols)
     return Mat.Mat(

@@ -13,8 +13,27 @@ make a relatively simple API on our handling of pngs and arrays.
 
 
 # Round color coordinate to nearest int and clamp to [0, 255]
-def _color_int(col):
+def _hex(n):
+    """zero filled hex"""
+    return hex(n)[2:].zfill(2)
+
+
+def _color_int(col: float) -> int:
     return max(min(round(col), 255), 0)
+
+
+def rgb_to_hex(rgb):
+    """3 value rgb tuple to hex"""
+    assert len(rgb) == 3
+    rgb = [_color_int(color) for color in rgb]
+    return "#" + "".join([_hex(n) for n in rgb])
+
+
+def corners(x, y) -> list[list]:
+    """Return the corners, starting from `x, y` counter clockwise."""
+    point_order = [(0, 0), (1, 0), (1, 1), (0, 1)]
+    corner_order = [(x + dx, y + dy) for dx, dy in point_order]
+    return [[corner[i] for corner in corner_order] for i in (0, 1)]
 
 
 # utility conversions, between boxed pixel and flat pixel formats
