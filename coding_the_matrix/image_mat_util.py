@@ -13,19 +13,64 @@ make a relatively simple API on our handling of pngs and arrays.
 
 from coding_the_matrix import Vec
 from coding_the_matrix import Mat
-from coding_the_matrix.matutil import mat2coldict
+from coding_the_matrix.matutil import mat2coldict, mat2rowdict
 import matplotlib.pyplot as plt
 import io
 import numpy as np
+from PIL import Image, ImageDraw
 
 
-def show_colors(colors: Mat.Mat, locations: Mat.Mat):
+def show_colors_im(colors: Mat.Mat, locations: Mat.Mat, density=6.0):
+    """
+
+    Parameters
+    ----------
+    colors :
+    locations :
+    density : number of plots per point
+
+    Returns
+    -------
+    im
+    """
+    x_max, x_min, y_max, y_min = fig_size(locations)
+    im = Image.new(
+        mode="RGB",
+        size=(int((x_max - x_min) * density), int((y_max - y_min) * density)),
+        color="white",
+    )
+    d = ImageDraw.Draw(im)
+
+    color_dict = mat2coldict(colors)
+    location_dict = mat2coldict(locations)
+
+    # make it square
+    for top_left_point in sorted(color_dict):
+        # color
+        color = color_dict[top_left_point]
+        hex_color = rgb_to_hex(color)
+
+        # 4 points
+        corner_index = four_corners(*top_left_point)
+        corners = [location_dict[corner] for corner in corner_index]
+        corner_tuples = [
+            (corner["x"] * density, corner["y"] * density) for corner in corners
+        ]
+
+        # fill the polygon
+        d.polygon(corner_tuples, fill=hex_color)
+
+    return im
+
+
+def show_colors(colors: Mat.Mat, locations: Mat.Mat, height=1.0):
     """from a colors matrix and locations matrix, return the figure
 
     Parameters
     ----------
     colors :
     locations :
+    height : figheight
 
     Returns
     -------
@@ -35,7 +80,10 @@ def show_colors(colors: Mat.Mat, locations: Mat.Mat):
     color_dict = mat2coldict(colors)
     location_dict = mat2coldict(locations)
 
-    fig, ax = plt.subplots()
+    # make it square
+    fig, ax = plt.subplots(figsize=(height, height))
+    plt.tight_layout(pad=0)
+    plt.margins(x=0, y=0)
     for top_left_point in sorted(color_dict):
         # color
         color = color_dict[top_left_point]
@@ -49,12 +97,26 @@ def show_colors(colors: Mat.Mat, locations: Mat.Mat):
     return fig
 
 
-def fig_to_array(fig) -> np.array:
+def fig_size(locations):
+    """return x_max, x_min, y_max, y_min"""
+    rowdict = mat2rowdict(locations)
+    return rowdict["x"].max, rowdict["x"].min, rowdict["y"].max, rowdict["y"].min
+
+
+def fig2arr(fig):
+    """Convert a Matplotlib figure to a PIL Image and return it"""
+    with io.BytesIO() as buf:
+        fig.savefig(buf)
+        buf.seek(0)
+        img = Image.open(buf).convert("RGB")
+        return np.array(img)
+
+
+def _fig_to_array(fig) -> np.array:
     """
     A quick way to get the numpy representation from a fig.
     Isn't complete, as this relies on how the figure is rendered.
     """
-    fig.tight_layout(pad=0)
     with io.BytesIO() as io_buf:
         fig.savefig(io_buf, format="raw")
         io_buf.seek(0)

@@ -40,6 +40,14 @@ class Mat:
     def shape(self):
         return len(self.D[0]), len(self.D[1])
 
+    @property
+    def max(self):
+        return max(self.f.values())
+
+    @property
+    def min(self):
+        return min(self.f.values())
+
     def copy(self):
         return self.__class__(self.D, self.f.copy())
 

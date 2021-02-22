@@ -214,6 +214,14 @@ class Vec:
         self.D = domain
         self.f = function
 
+    @property
+    def max(self):
+        return max(self.f.values())
+
+    @property
+    def min(self):
+        return min(self.f.values())
+
     def __repr__(self):
         non_zero = {k: v for k, v in self.f.items() if v != 0}
         return f"Vec(self.D, {non_zero})"
