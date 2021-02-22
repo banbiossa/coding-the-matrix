@@ -14,11 +14,12 @@ black = "*"
 tqdm = "*"
 seaborn = "*"
 pandas = "*"
-numpy = "*"
+numpy = "==1.18.1"
 matplotlib = "*"
 blackcellmagic = "*"
 jedi = "<=0.17.2"
 jupyter-kite = "*"
+Pillow = '*'
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -27,7 +27,7 @@ def mat_mul_mat(U, V):
 
 class Mat:
     def __init__(self, labels, function):
-        self._original_labels = (item.copy() for item in labels)
+        self._original_labels = [item.copy() for item in labels]
         labels = [set(label) for label in labels]
         assert len(labels) == 2
         assert all([isinstance(d, set) for d in labels])
