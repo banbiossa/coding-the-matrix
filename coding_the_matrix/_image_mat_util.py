@@ -11,8 +11,12 @@
     matrix represent the boundary of the pixel region
     """
 
-import mat
-import png
+from coding_the_matrix import Mat as mat
+
+# import mat
+from coding_the_matrix import png
+
+# import png
 import numbers
 import collections
 import webbrowser

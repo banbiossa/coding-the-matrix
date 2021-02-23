@@ -20,7 +20,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 
-def show_colors_im(colors: Mat.Mat, locations: Mat.Mat, density=6.0):
+def mat2im(colors: Mat.Mat, locations: Mat.Mat, density=6.0):
     """
 
     Parameters
