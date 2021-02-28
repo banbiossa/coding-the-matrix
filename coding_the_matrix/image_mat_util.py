@@ -11,6 +11,7 @@ and we are in Python 3.9 with a rich ecosystem for dealing with png and arrays
 make a relatively simple API on our handling of pngs and arrays.
 """
 
+import itertools
 from typing import Tuple
 from coding_the_matrix import Vec
 from coding_the_matrix import Mat
@@ -41,10 +42,12 @@ def im2colors(im: Image) -> Mat.Mat:
 
 
 def im2locations(im: Image) -> Mat.Mat:
-    """Get a location matrix from a pillow Image"""
-    r = im[:, :, 0]
-    r_dict = array_to_dict(r)
-    col_labels = list(r_dict.keys())
+    """Get a location matrix from a pillow Image
+    Locations is a (x, y) -> (x, y, 1) matrix that is 1 larger than the original color matrix
+    Conceptually the corners of the matrix
+    """
+    x, y, _ = im.shape
+    col_labels = [(i, j) for i, j in itertools.product(range(x + 1), range(y + 1))]
 
     rowdict = dict(
         x=Vec.Vec(set(col_labels), function={key: key[0] for key in col_labels}),
