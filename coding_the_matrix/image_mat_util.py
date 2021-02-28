@@ -11,6 +11,7 @@ and we are in Python 3.9 with a rich ecosystem for dealing with png and arrays
 make a relatively simple API on our handling of pngs and arrays.
 """
 
+from typing import Tuple
 from coding_the_matrix import Vec
 from coding_the_matrix import Mat
 from coding_the_matrix.matutil import mat2coldict, mat2rowdict, rowdict2mat
@@ -18,6 +19,11 @@ import matplotlib.pyplot as plt
 import io
 import numpy as np
 from PIL import Image, ImageDraw
+
+
+def im2mat(im: Image) -> Tuple[Mat.Mat, Mat.Mat]:
+    """Returns color matrix and location matrix from Pillow image"""
+    return im2colors(im), im2locations(im)
 
 
 def im2colors(im: Image) -> Mat.Mat:
@@ -31,6 +37,20 @@ def im2colors(im: Image) -> Mat.Mat:
         "g": Vec.Vec(set(col_labels), array_to_dict(g)),
         "b": Vec.Vec(set(col_labels), array_to_dict(b)),
     }
+    return rowdict2mat(rowdict, col_labels=col_labels)
+
+
+def im2locations(im: Image) -> Mat.Mat:
+    """Get a location matrix from a pillow Image"""
+    r = im[:, :, 0]
+    r_dict = array_to_dict(r)
+    col_labels = list(r_dict.keys())
+
+    rowdict = dict(
+        x=Vec.Vec(set(col_labels), function={key: key[0] for key in col_labels}),
+        y=Vec.Vec(set(col_labels), function={key: key[1] for key in col_labels}),
+        u=Vec.Vec(set(col_labels), function={key: 1 for key in col_labels}),
+    )
     return rowdict2mat(rowdict, col_labels=col_labels)
 
 
