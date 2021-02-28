@@ -62,7 +62,7 @@ class Mat:
         other : Mat
         """
         same_class = isinstance(other, Mat)
-        same_D = self.D == other.D
+        same_D = self.D[0] == other.D[0] and self.D[1] == other.D[1]
         same_f = self._sparse_f() == other._sparse_f()
         return same_D and same_f and same_class
 

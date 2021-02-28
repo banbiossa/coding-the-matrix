@@ -91,7 +91,7 @@ def coldict2mat(coldict):
     )
 
 
-def rowdict2mat(rowdict):
+def rowdict2mat(rowdict, col_labels=None):
     """
     Given a dictionary or list whose values are Vecs, returns the Mat having these
     Vecs as its rows.  This is the inverse of mat2rowdict.
@@ -110,9 +110,10 @@ def rowdict2mat(rowdict):
     >>> rowdict2mat(A) == rowdict2mat(B)
     True
     """
-    col_labels = value(rowdict).D
+    if col_labels is None:
+        col_labels = value(rowdict).D
     return Mat.Mat(
-        (set(keys(rowdict)), col_labels),
+        (list(keys(rowdict)), col_labels),
         {(r, c): rowdict[r][c] for r in keys(rowdict) for c in col_labels},
     )
 

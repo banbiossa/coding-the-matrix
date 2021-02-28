@@ -3,6 +3,7 @@ from coding_the_matrix.image_mat_util import (
     four_corners,
     corners_to_list,
     rgb_to_hex,
+    array_to_dict,
 )
 import pytest
 from coding_the_matrix.Mat import Mat
@@ -10,6 +11,7 @@ from coding_the_matrix.Vec import Vec
 from coding_the_matrix.matutil import listlist2mat, mat2rowdict
 from coding_the_matrix.vecutil import list2vec
 import itertools
+import numpy as np
 
 
 @pytest.fixture
@@ -63,4 +65,26 @@ def test_corners_to_list():
     corners = mat2rowdict(listlist2mat([[0, 1, 1], [1, 0, 1]], cols=["x", "y", "u"]))
     actual = corners_to_list(corners.values())
     expected = [[0, 1], [1, 0], [1, 1]]
+    assert actual == expected
+
+
+def test_array_to_dict():
+    array = np.array([[1, 0], [0, 1]])
+    """
+    1 0 
+    0 1
+    """
+    actual = array_to_dict(array)
+    expected = {(0, 0): 1, (0, 1): 0, (1, 0): 0, (1, 1): 1}
+    assert actual == expected
+
+
+def test_array_to_dict_2():
+    array = np.array([[1, 2], [0, 1]])
+    """
+    1 2 
+    0 1
+    """
+    actual = array_to_dict(array)
+    expected = {(0, 0): 1, (0, 1): 0, (1, 0): 2, (1, 1): 1}
     assert actual == expected

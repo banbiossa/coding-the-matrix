@@ -13,11 +13,50 @@ make a relatively simple API on our handling of pngs and arrays.
 
 from coding_the_matrix import Vec
 from coding_the_matrix import Mat
-from coding_the_matrix.matutil import mat2coldict, mat2rowdict
+from coding_the_matrix.matutil import mat2coldict, mat2rowdict, rowdict2mat
 import matplotlib.pyplot as plt
 import io
 import numpy as np
 from PIL import Image, ImageDraw
+
+
+def im2colors(im: Image) -> Mat.Mat:
+    """Get a color matrix from a Pillow image"""
+    r, g, b = im[:, :, 0], im[:, :, 1], im[:, :, 2]
+    r_dict = array_to_dict(r)
+    col_labels = list(r_dict.keys())
+
+    rowdict = {
+        "r": Vec.Vec(set(col_labels), r_dict),
+        "g": Vec.Vec(set(col_labels), array_to_dict(g)),
+        "b": Vec.Vec(set(col_labels), array_to_dict(b)),
+    }
+    return rowdict2mat(rowdict, col_labels=col_labels)
+
+
+def array_to_dict(array: np.array) -> dict:
+    """Unpack a 2d array to {(row, col): val}
+    The tricky part is that a row, col => j, i
+    This is because when a col increases, x increases
+    and row increases, y increases
+
+       x ->> x increase left
+    y
+    |
+    |
+    y increase down
+
+    e.g., For the matrix
+    0 1
+    2 3
+
+    0: 0,0
+    1: is (row, col) = (0, 1), (x,y) = (1, 0)
+    2: is (row, col) = (1, 0), (x,y) = (0, 1)
+    3: 1,1
+    """
+    assert array.ndim == 2
+    return {(j, i): val for (i, row) in enumerate(array) for (j, val) in enumerate(row)}
 
 
 def mat2im(colors: Mat.Mat, locations: Mat.Mat, density=6.0):
@@ -77,6 +116,8 @@ def show_colors(colors: Mat.Mat, locations: Mat.Mat, height=1.0):
     figure
 
     """
+    assert colors.D[0] == {"r", "g", "b"}
+    assert locations.D[0] == {"x", "y", "u"}
     color_dict = mat2coldict(colors)
     location_dict = mat2coldict(locations)
 
