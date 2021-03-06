@@ -28,7 +28,9 @@ def im2mat(im: Image) -> Tuple[Mat.Mat, Mat.Mat]:
 
 
 def im2colors(im: Image) -> Mat.Mat:
-    """Get a color matrix from a Pillow image"""
+    """Get a color matrix from a Pillow image
+    Maps the rgb, square -> value
+    """
     r, g, b = im[:, :, 0], im[:, :, 1], im[:, :, 2]
     r_dict = array_to_dict(r)
     col_labels = list(r_dict.keys())
