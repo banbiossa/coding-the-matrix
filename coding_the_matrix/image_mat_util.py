@@ -22,19 +22,53 @@ import io
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageDraw
+from numbers import Number
 
 
-def to_transformation(funcs: dict):
-    """Make a dict of dicts to a transformation"""
+def show(colors, locations, loc_mat=None, col_mat=None):
+    if loc_mat is None:
+        loc_mat = identity()
+    if col_mat is None:
+        col_mat = scale_color(1, 1, 1)
+    im = mat2im(col_mat * colors, loc_mat * locations)
+    return plt.imshow(im)
+
+
+def to_transformation(funcs: dict) -> Mat.Mat:
+    """Make a dict of dicts to a color or location transformation matrix
+
+    Args:
+        funcs: a dict of values to be made into a matrix
+            e.g., {'x': {'x': 1}}
+            e.g., {'r': {'r': 1, 'g': 2}, 'g': {'g': 1}}
+            Takes {'r', 'g', 'b'} or {'x', 'y', 'u'} domain dicts
+    """
     assert isinstance(funcs, dict)
-    assert any([key in funcs for key in ["x", "y", "u"]])
-    D = {"x", "y", "u"}
-    rowdict = dict(
-        x=Vec.Vec(D, funcs.get("x", {})),
-        y=Vec.Vec(D, funcs.get("y", {})),
-        u=Vec.Vec(D, funcs.get("u", {})),
-    )
-    return rowdict2mat(rowdict, col_labels=["x", "y", "u"])
+
+    def _find_D() -> list[str]:
+        # get the domain, either xyu or rgb
+        for D in [["x", "y", "u"], ["r", "g", "b"]]:
+            if any([key in funcs for key in D]):
+                return D
+        raise ValueError(f"Can't find domain for {funcs.keys()}")
+
+    # get the D that matches
+    D = _find_D()
+    # make a 3D dict of Vecs
+    rowdict: dict[str, Vec.Vec] = {
+        key: Vec.Vec(set(D), funcs.get(key, {})) for key in D
+    }
+    return rowdict2mat(rowdict, col_labels=D)
+
+
+def scale_color(r, g, b):
+    """Scale the colors"""
+    funcs = {
+        "r": {"r": r},
+        "g": {"g": g},
+        "b": {"b": b},
+    }
+    return to_transformation(funcs)
 
 
 def identity() -> Mat.Mat:
@@ -316,11 +350,14 @@ def _fig_to_array(fig) -> np.array:
 # Round color coordinate to nearest int and clamp to [0, 255]
 def _hex(n):
     """zero filled hex"""
+    if type(n).__module__ == np.__name__:
+        raise TypeError(f"{n} shouldn't be numpy but an int.")
     return hex(n)[2:].zfill(2)
 
 
 def _color_int(col: float) -> int:
-    return max(min(round(col), 255), 0)
+    as_int = max(min(int(round(col)), 255), 0)
+    return as_int
 
 
 def rgb_to_hex(rgb: Vec.Vec):

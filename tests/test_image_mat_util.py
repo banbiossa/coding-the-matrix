@@ -1,10 +1,15 @@
+import matplotlib
+
 from coding_the_matrix.image_mat_util import (
     _color_int,
+    _hex,
     four_corners,
     corners_to_list,
     rgb_to_hex,
     array_to_dict,
     fig_size,
+    show,
+    scale_color,
 )
 import pytest
 from coding_the_matrix.Mat import Mat
@@ -41,9 +46,28 @@ def test_fig_size(gray_scale_squares):
     assert actual == expected
 
 
-@pytest.mark.parametrize("test_input,expected", [(3.2, 3), (-1, 0), (257, 255)])
+def test_hex():
+    actual = _hex(0)
+    expected = "00"
+    assert actual == expected
+
+    actual = _hex(255)
+    expected = "ff"
+    assert actual == expected
+
+    with pytest.raises(TypeError):
+        _hex(255.1)
+
+    with pytest.raises(TypeError):
+        _hex(np.float32(322))
+
+
+@pytest.mark.parametrize(
+    "test_input,expected", [(3.2, 3), (-1, 0), (257, 255), (np.float64(1.1), 1)]
+)
 def test_color_int(test_input, expected):
     actual = _color_int(test_input)
+    assert type(actual) == int
     assert actual == expected
 
 
@@ -61,7 +85,8 @@ def test_four_corners(test_input, expected):
 
 
 @pytest.mark.parametrize(
-    "test_input,expected", [([0, 0, 0], "#000000"), ([0, 255, 0], "#00ff00")]
+    "test_input,expected",
+    [([0, 0, 0], "#000000"), ([0, 255, 0], "#00ff00"), ([0.1, 255, 0], "#00ff00")],
 )
 def test_rgb_to_hex(test_input, expected):
     color = Vec({"r", "g", "b"}, {c: test_input[i] for i, c in enumerate("rgb")})
@@ -96,3 +121,16 @@ def test_array_to_dict_2():
     actual = array_to_dict(array)
     expected = {(0, 0): 1, (0, 1): 0, (1, 0): 2, (1, 1): 1}
     assert actual == expected
+
+
+def test_scale_colors(gray_scale_squares):
+    colors, locations = gray_scale_squares
+
+    img = show(colors, locations, col_mat=scale_color(1, 1, 2))
+    assert isinstance(img, matplotlib.image.AxesImage)
+
+
+def test_scale_colors_2(gray_scale_squares):
+    colors, locations = gray_scale_squares
+    img = show(colors, locations, col_mat=scale_color(1 / 2, 4, 2))
+    assert isinstance(img, matplotlib.image.AxesImage)
