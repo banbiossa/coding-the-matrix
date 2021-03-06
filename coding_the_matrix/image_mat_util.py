@@ -19,10 +19,11 @@ from coding_the_matrix.matutil import mat2coldict, mat2rowdict, rowdict2mat
 import matplotlib.pyplot as plt
 import io
 import numpy as np
+import pandas as pd
 from PIL import Image, ImageDraw
 
 
-def identity() -> Mat:
+def identity() -> Mat.Mat:
     """Returns an identity matrix for location vectors"""
     D = {"x", "y", "u"}
     rowdict = dict(
@@ -30,6 +31,18 @@ def identity() -> Mat:
         y=Vec.Vec(D, {"y": 1}),
         u=Vec.Vec(D, {"u": 1}),
     )
+    return rowdict2mat(rowdict, col_labels=["x", "y", "u"])
+
+
+def translation(alpha, beta) -> Mat.Mat:
+    """(x, y) -> (x+alpha, y+beta) on a (x, y, u) representation"""
+    D = {"x", "y", "u"}
+    rowdict = dict(
+        x=Vec.Vec(D, {"x": 1, "u": alpha}),
+        y=Vec.Vec(D, {"y": 1, "u": beta}),
+        u=Vec.Vec(D, {"u": 1}),
+    )
+
     return rowdict2mat(rowdict, col_labels=["x", "y", "u"])
 
 
@@ -95,25 +108,42 @@ def array_to_dict(array: np.array) -> dict:
     return {(j, i): val for (i, row) in enumerate(array) for (j, val) in enumerate(row)}
 
 
-def mat2im(colors: Mat.Mat, locations: Mat.Mat, density=6.0):
+def init_blank_image(locations: Mat.Mat):
+    """Get a blank image (canvas?) to plot the locations on.
+    A square shape that just fits the locations
+
+    Parameters
+    ----------
+    locations : locations matrix
+
+    Returns
+    -------
+    An image
+    """
+    x_max, x_min, y_max, y_min = fig_size(locations)
+    im = Image.new(
+        mode="RGB",
+        size=(int(x_max), int(y_max)),
+        color="white",
+    )
+    return im
+
+
+def mat2im(colors: Mat.Mat, locations: Mat.Mat, im: Image = None):
     """
 
     Parameters
     ----------
     colors :
     locations :
-    density : number of plots per point
+    im: the image to draw on
 
     Returns
     -------
     im
     """
-    x_max, x_min, y_max, y_min = fig_size(locations)
-    im = Image.new(
-        mode="RGB",
-        size=(int((x_max - x_min) * density), int((y_max - y_min) * density)),
-        color="white",
-    )
+    if im is None:
+        im = init_blank_image(locations)
     d = ImageDraw.Draw(im)
 
     color_dict = mat2coldict(colors)
@@ -128,14 +158,24 @@ def mat2im(colors: Mat.Mat, locations: Mat.Mat, density=6.0):
         # 4 points
         corner_index = four_corners(*top_left_point)
         corners = [location_dict[corner] for corner in corner_index]
-        corner_tuples = [
-            (corner["x"] * density, corner["y"] * density) for corner in corners
-        ]
+        corner_tuples = [(corner["x"], corner["y"]) for corner in corners]
 
         # fill the polygon
         d.polygon(corner_tuples, fill=hex_color)
 
     return im
+
+
+def fig_max(all_locations):
+    """get the maximum from all locations"""
+    return (
+        pd.DataFrame(
+            [fig_size(loc) for loc in all_locations],
+            columns=["x_max", "x_min", "y_max", "y_min"],
+        )
+        .max()
+        .to_dict()
+    )
 
 
 def show_colors(colors: Mat.Mat, locations: Mat.Mat, height=1.0):

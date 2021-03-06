@@ -4,6 +4,7 @@ from coding_the_matrix.image_mat_util import (
     corners_to_list,
     rgb_to_hex,
     array_to_dict,
+    fig_size,
 )
 import pytest
 from coding_the_matrix.Mat import Mat
@@ -18,19 +19,26 @@ import numpy as np
 def gray_scale_squares():
     numbers = ["000111222", "012" * 3, "1" * 9]
     input_list = [[int(c) for c in number] for number in numbers]
-    locations = listlist2mat(
-        input_list,
-        rows=["x", "y", "u"],
-        cols=[(x, y) for x, y in itertools.product(range(3), range(3))],
-        # cols=[(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)],
-    )
     colors = listlist2mat(
         # this becomes gray
         [[225, 125, 175, 75] for _ in range(3)],
         rows=["r", "g", "b"],
         cols=[(x, y) for x, y in itertools.product(range(2), range(2))],
     )
-    return locations, colors
+    locations = listlist2mat(
+        input_list,
+        rows=["x", "y", "u"],
+        cols=[(x, y) for x, y in itertools.product(range(3), range(3))],
+        # cols=[(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)],
+    )
+    return colors, locations
+
+
+def test_fig_size(gray_scale_squares):
+    colors, locations = gray_scale_squares
+    actual = fig_size(locations)
+    expected = (2, 0, 2, 0)
+    assert actual == expected
 
 
 @pytest.mark.parametrize("test_input,expected", [(3.2, 3), (-1, 0), (257, 255)])

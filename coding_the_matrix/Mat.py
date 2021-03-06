@@ -22,7 +22,7 @@ def mat_mul_mat(U, V):
     rowdict = matutil.mat2rowdict(U)
     for key, row in rowdict.items():
         rowdict[key] = row * V
-    return matutil.rowdict2mat(rowdict)
+    return matutil.rowdict2mat(rowdict, col_labels=V.original_labels[1])
 
 
 class Mat:
@@ -35,6 +35,10 @@ class Mat:
         assert all([i in labels[0] and j in labels[1] for (i, j) in function.keys()])
         self.D = labels
         self.f = function
+
+    @property
+    def original_labels(self):
+        return self._original_labels
 
     @property
     def shape(self):
