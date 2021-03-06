@@ -154,7 +154,7 @@ def reflect_y() -> Mat.Mat:
 
 
 def reflect_x() -> Mat.Mat:
-    """(x, y) -> (-x, y)"""
+    """(x, y) -> (x, -y)"""
     funcs = dict(
         x={"x": 1},
         y={"y": -1},
