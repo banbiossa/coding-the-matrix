@@ -22,6 +22,17 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 
+def identity() -> Mat:
+    """Returns an identity matrix for location vectors"""
+    D = {"x", "y", "u"}
+    rowdict = dict(
+        x=Vec.Vec(D, {"x": 1}),
+        y=Vec.Vec(D, {"y": 1}),
+        u=Vec.Vec(D, {"u": 1}),
+    )
+    return rowdict2mat(rowdict, col_labels=["x", "y", "u"])
+
+
 def im2mat(im: Image) -> Tuple[Mat.Mat, Mat.Mat]:
     """Returns color matrix and location matrix from Pillow image"""
     return im2colors(im), im2locations(im)
