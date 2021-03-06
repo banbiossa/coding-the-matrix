@@ -22,15 +22,34 @@ import io
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageDraw
-from numbers import Number
+from functools import reduce
+import operator
 
 
-def show(colors, locations, loc_mat=None, col_mat=None):
-    if loc_mat is None:
-        loc_mat = identity()
+def reduce_end_mul(values, end):
+    """Reduce multiply but specifies the end (the original matrix)"""
+    if isinstance(values, Mat.Mat):
+        values = [values]
+    assert isinstance(values, list)
+    assert isinstance(end, Mat.Mat)
+    values.append(end)
+    start = values.pop(0)
+    return reduce(operator.mul, values, start)
+
+
+def show(
+    colors,
+    locations,
+    col_mat=None,
+    loc_mat=None,
+):
+    """Can take lists for loc_mat and col_mat"""
     if col_mat is None:
         col_mat = scale_color(1, 1, 1)
-    im = mat2im(col_mat * colors, loc_mat * locations)
+    if loc_mat is None:
+        loc_mat = identity()
+
+    im = mat2im(reduce_end_mul(col_mat, colors), reduce_end_mul(loc_mat, locations))
     return plt.imshow(im)
 
 
@@ -59,6 +78,14 @@ def to_transformation(funcs: dict) -> Mat.Mat:
         key: Vec.Vec(set(D), funcs.get(key, {})) for key in D
     }
     return rowdict2mat(rowdict, col_labels=D)
+
+
+def grayscale():
+    """Return grayscale rgb 77r/256, 151g/256, 28b/256"""
+    funcs = {
+        key: {"r": 77 / 256, "g": 151 / 256, "b": 28 / 256} for key in {"r", "g", "b"}
+    }
+    return to_transformation(funcs)
 
 
 def scale_color(r, g, b):

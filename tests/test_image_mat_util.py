@@ -10,12 +10,14 @@ from coding_the_matrix.image_mat_util import (
     fig_size,
     show,
     scale_color,
+    reduce_end_mul,
+    scale,
+    translation,
 )
 import pytest
-from coding_the_matrix.Mat import Mat
 from coding_the_matrix.Vec import Vec
+from coding_the_matrix.Mat import Mat
 from coding_the_matrix.matutil import listlist2mat, mat2rowdict
-from coding_the_matrix.vecutil import list2vec
 import itertools
 import numpy as np
 
@@ -134,3 +136,10 @@ def test_scale_colors_2(gray_scale_squares):
     colors, locations = gray_scale_squares
     img = show(colors, locations, col_mat=scale_color(1 / 2, 4, 2))
     assert isinstance(img, matplotlib.image.AxesImage)
+
+
+def test_reduce_end_mul(gray_scale_squares):
+    colors, locations = gray_scale_squares
+    loc_transformations = [scale(3, 2), translation(2, 1)]
+    mat = reduce_end_mul(loc_transformations, locations)
+    assert isinstance(mat, Mat)
