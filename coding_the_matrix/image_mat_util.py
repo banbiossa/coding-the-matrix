@@ -12,6 +12,7 @@ make a relatively simple API on our handling of pngs and arrays.
 """
 
 import itertools
+from math import ceil
 from typing import Tuple
 from coding_the_matrix import Vec
 from coding_the_matrix import Mat
@@ -23,27 +24,82 @@ import pandas as pd
 from PIL import Image, ImageDraw
 
 
-def identity() -> Mat.Mat:
-    """Returns an identity matrix for location vectors"""
+def to_transformation(funcs: dict):
+    """Make a dict of dicts to a transformation"""
+    assert isinstance(funcs, dict)
+    assert any([key in funcs for key in ["x", "y", "u"]])
     D = {"x", "y", "u"}
     rowdict = dict(
-        x=Vec.Vec(D, {"x": 1}),
-        y=Vec.Vec(D, {"y": 1}),
-        u=Vec.Vec(D, {"u": 1}),
+        x=Vec.Vec(D, funcs.get("x", {})),
+        y=Vec.Vec(D, funcs.get("y", {})),
+        u=Vec.Vec(D, funcs.get("u", {})),
     )
     return rowdict2mat(rowdict, col_labels=["x", "y", "u"])
+
+
+def identity() -> Mat.Mat:
+    """Returns an identity matrix for location vectors"""
+    funcs = dict(
+        x={"x": 1},
+        y={"y": 1},
+        u={"u": 1},
+    )
+    return to_transformation(funcs)
 
 
 def translation(alpha, beta) -> Mat.Mat:
     """(x, y) -> (x+alpha, y+beta) on a (x, y, u) representation"""
-    D = {"x", "y", "u"}
-    rowdict = dict(
-        x=Vec.Vec(D, {"x": 1, "u": alpha}),
-        y=Vec.Vec(D, {"y": 1, "u": beta}),
-        u=Vec.Vec(D, {"u": 1}),
+    funcs = dict(
+        x={"x": 1, "u": alpha},
+        y={"y": 1, "u": beta},
+        u={"u": 1},
     )
+    return to_transformation(funcs)
 
-    return rowdict2mat(rowdict, col_labels=["x", "y", "u"])
+
+def scale(alpha, beta) -> Mat.Mat:
+    """Scale the matrix [x, y] -> [x*alpha, y*beta]"""
+    funcs = dict(
+        x={"x": alpha},
+        y={"y": beta},
+        u={"u": 1},
+    )
+    return to_transformation(funcs)
+
+
+def rotation(theta) -> Mat.Mat:
+    """Rotate the matrix [x, y] -> [cos(theta)*x - sin(theta)*y, sin(theta)*x + cos(theta)*y]"""
+    funcs = dict(
+        x={"x": np.cos(theta), "y": -np.sin(theta)},
+        y={"x": np.sin(theta), "y": np.cos(theta)},
+        u={"u": 1},
+    )
+    return to_transformation(funcs)
+
+
+def rotation_about(theta, x, y) -> Mat.Mat:
+    """Rotate around x, y"""
+    return translation(x, y) * rotation(theta) * translation(-x, -y)
+
+
+def reflect_y() -> Mat.Mat:
+    """(x, y) -> (-x, y)"""
+    funcs = dict(
+        x={"x": -1},
+        y={"y": 1},
+        u={"u": 1},
+    )
+    return to_transformation(funcs)
+
+
+def reflect_x() -> Mat.Mat:
+    """(x, y) -> (-x, y)"""
+    funcs = dict(
+        x={"x": 1},
+        y={"y": -1},
+        u={"u": 1},
+    )
+    return to_transformation(funcs)
 
 
 def im2mat(im: Image) -> Tuple[Mat.Mat, Mat.Mat]:
@@ -108,13 +164,14 @@ def array_to_dict(array: np.array) -> dict:
     return {(j, i): val for (i, row) in enumerate(array) for (j, val) in enumerate(row)}
 
 
-def init_blank_image(locations: Mat.Mat):
+def init_blank_image(locations: Mat.Mat, density=1.0):
     """Get a blank image (canvas?) to plot the locations on.
     A square shape that just fits the locations
 
     Parameters
     ----------
     locations : locations matrix
+    density:
 
     Returns
     -------
@@ -123,13 +180,13 @@ def init_blank_image(locations: Mat.Mat):
     x_max, x_min, y_max, y_min = fig_size(locations)
     im = Image.new(
         mode="RGB",
-        size=(int(x_max), int(y_max)),
+        size=(ceil(x_max * density), ceil(y_max * density)),
         color="white",
     )
     return im
 
 
-def mat2im(colors: Mat.Mat, locations: Mat.Mat, im: Image = None):
+def mat2im(colors: Mat.Mat, locations: Mat.Mat, im: Image = None, density=1.0):
     """
 
     Parameters
@@ -137,17 +194,24 @@ def mat2im(colors: Mat.Mat, locations: Mat.Mat, im: Image = None):
     colors :
     locations :
     im: the image to draw on
+    density:
 
     Returns
     -------
     im
     """
     if im is None:
-        im = init_blank_image(locations)
+        im = init_blank_image(locations, density=density)
     d = ImageDraw.Draw(im)
 
     color_dict = mat2coldict(colors)
     location_dict = mat2coldict(locations)
+
+    # if all are minus, raise an Error
+    if not any(vec["x"] > 0 and vec["y"] > 0 for vec in location_dict.values()):
+        raise RuntimeError(
+            "All values are minus, need at least one to print. Consider translation(+x, +y)"
+        )
 
     # make it square
     for top_left_point in sorted(color_dict):
@@ -158,7 +222,10 @@ def mat2im(colors: Mat.Mat, locations: Mat.Mat, im: Image = None):
         # 4 points
         corner_index = four_corners(*top_left_point)
         corners = [location_dict[corner] for corner in corner_index]
-        corner_tuples = [(corner["x"], corner["y"]) for corner in corners]
+        corner_tuples = [
+            (int(corner["x"] * density), int(corner["y"] * density))
+            for corner in corners
+        ]
 
         # fill the polygon
         d.polygon(corner_tuples, fill=hex_color)
@@ -174,7 +241,9 @@ def fig_max(all_locations):
             columns=["x_max", "x_min", "y_max", "y_min"],
         )
         .max()
+        .loc[["x_max", "y_max"]]
         .to_dict()
+        .values()
     )
 
 
