@@ -98,6 +98,31 @@ def scale_color(r, g, b):
     return to_transformation(funcs)
 
 
+def reflect_about(x1, y1, x2, y2):
+    """reflects about the line defined by the 2 points
+
+    Definition:
+        m: ( (x1+x2)/2, (y1+y2)/2 )
+        theta: tan(theta) = (y2-y1)/(x2-x1)
+
+    Plan:
+        - Translate minus m
+        - Rotate minus theta
+        - reflect_x
+        - Rotate theta
+        - Translate m
+    """
+    mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+    theta = np.arctan((y2 - y1) / (x2 - x1))
+    return (
+        translation(mx, my)
+        * rotation(theta)
+        * reflect_x()
+        * rotation(-theta)
+        * translation(-mx, -my)
+    )
+
+
 def identity() -> Mat.Mat:
     """Returns an identity matrix for location vectors"""
     funcs = dict(

@@ -13,6 +13,9 @@ from coding_the_matrix.image_mat_util import (
     reduce_end_mul,
     scale,
     translation,
+    reflect_x,
+    reflect_y,
+    rotation,
 )
 import pytest
 from coding_the_matrix.Vec import Vec
@@ -94,6 +97,64 @@ def test_rgb_to_hex(test_input, expected):
     color = Vec({"r", "g", "b"}, {c: test_input[i] for i, c in enumerate("rgb")})
     actual = rgb_to_hex(color)
     assert actual == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,test_output", [([1, 0], [1, 0]), ([0, 1], [0, -1])]
+)
+def test_reflect_x(test_input, test_output):
+    D = {"x", "y", "u"}
+    point = Vec(D, {"x": test_input[0], "y": test_input[1], "u": 1})
+    actual = reflect_x() * point
+    expected = Vec(D, {"x": test_output[0], "y": test_output[1], "u": 1})
+    assert actual == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,test_output", [([1, 0], [-1, 0]), ([0, 1], [0, 1])]
+)
+def test_reflect_y(test_input, test_output):
+    D = {"x", "y", "u"}
+    point = Vec(D, {"x": test_input[0], "y": test_input[1], "u": 1})
+    actual = reflect_y() * point
+    expected = Vec(D, {"x": test_output[0], "y": test_output[1], "u": 1})
+    assert actual == expected
+
+
+@pytest.mark.parametrize(
+    "theta,test_input,test_output",
+    [
+        (0, [1, 0], [1, 0]),
+        (np.pi, [1, 1], [-1, -1]),
+        (np.pi / 2, [1, 0], [0, 1]),
+        (np.pi / 6, [1, 0], [np.sqrt(3) / 2, 1 / 2]),
+    ],
+)
+def test_rotation(theta, test_input, test_output):
+    D = {"x", "y", "u"}
+    point = Vec(D, {"x": test_input[0], "y": test_input[1], "u": 1})
+    actual = rotation(theta) * point
+    expected = Vec(D, {"x": test_output[0], "y": test_output[1], "u": 1})
+    diff = actual - expected
+    assert diff * diff < 1e-7
+
+
+@pytest.mark.parametrize(
+    "alpha,beta,test_input,test_output",
+    [
+        (0, 0, [1, 0], [1, 0]),
+        (1, 0, [1, 1], [2, 1]),
+        (np.pi, 2, [1, 0], [1 + np.pi, 2]),
+        (0, np.pi / 6, [0, 1 / 2], [0, 1 / 2 + np.pi / 6]),
+    ],
+)
+def test_translation(alpha, beta, test_input, test_output):
+    D = {"x", "y", "u"}
+    point = Vec(D, {"x": test_input[0], "y": test_input[1], "u": 1})
+    actual = translation(alpha, beta) * point
+    expected = Vec(D, {"x": test_output[0], "y": test_output[1], "u": 1})
+    diff = actual - expected
+    assert diff * diff < 1e-7
 
 
 def test_corners_to_list():
