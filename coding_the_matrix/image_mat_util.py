@@ -1,10 +1,10 @@
 """
-The original `image_mat_util.py` and `png.py` is way too complex.
-This comes (mostly) from supporting old versions of python (like 2.2 and 3.5), and
- that the original author was reluctant to rely on external libraries
- (as this would indeed make the install process a bit more of a hustle).
+The original `image_mat_util.py` and `png.py` was very complex (lot's of glue code).
+The complexity comes mostly from supporting old versions of python (like 2.2 and 3.5), and
+ the fact that the original author was reluctant to rely on external libraries
+ (maybe as this could make the installation process harder).
 
-I hope to make a simpler API for the same ends here.
+I hope to make a simpler API leveraging numpy and Pillow (less glue code).
 The functionality of each the original module is relatively simple,
 and we are in Python 3.9 with a rich ecosystem for dealing with png and arrays
 (mostly numpy and matplotlib). I hope I can load the work to these libraries and
