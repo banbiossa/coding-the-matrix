@@ -16,6 +16,7 @@ from coding_the_matrix.image_mat_util import (
     reflect_x,
     reflect_y,
     rotation,
+    identity,
 )
 import pytest
 from coding_the_matrix.Vec import Vec
@@ -60,9 +61,11 @@ def test_hex():
     expected = "ff"
     assert actual == expected
 
+    # hex only takes ints
     with pytest.raises(TypeError):
         _hex(255.1)
 
+    # hex only takes ints
     with pytest.raises(TypeError):
         _hex(np.float32(322))
 
@@ -103,22 +106,14 @@ def test_rgb_to_hex(test_input, expected):
     "test_input,test_output", [([1, 0], [1, 0]), ([0, 1], [0, -1])]
 )
 def test_reflect_x(test_input, test_output):
-    D = {"x", "y", "u"}
-    point = Vec(D, {"x": test_input[0], "y": test_input[1], "u": 1})
-    actual = reflect_x() * point
-    expected = Vec(D, {"x": test_output[0], "y": test_output[1], "u": 1})
-    assert actual == expected
+    test_vec_equal(reflect_x(), test_input, test_output)
 
 
 @pytest.mark.parametrize(
     "test_input,test_output", [([1, 0], [-1, 0]), ([0, 1], [0, 1])]
 )
 def test_reflect_y(test_input, test_output):
-    D = {"x", "y", "u"}
-    point = Vec(D, {"x": test_input[0], "y": test_input[1], "u": 1})
-    actual = reflect_y() * point
-    expected = Vec(D, {"x": test_output[0], "y": test_output[1], "u": 1})
-    assert actual == expected
+    test_vec_equal(reflect_y(), test_input, test_output)
 
 
 @pytest.mark.parametrize(
@@ -131,12 +126,7 @@ def test_reflect_y(test_input, test_output):
     ],
 )
 def test_rotation(theta, test_input, test_output):
-    D = {"x", "y", "u"}
-    point = Vec(D, {"x": test_input[0], "y": test_input[1], "u": 1})
-    actual = rotation(theta) * point
-    expected = Vec(D, {"x": test_output[0], "y": test_output[1], "u": 1})
-    diff = actual - expected
-    assert diff * diff < 1e-7
+    test_vec_nearly_equal(rotation(theta), test_input, test_output)
 
 
 @pytest.mark.parametrize(
@@ -149,9 +139,35 @@ def test_rotation(theta, test_input, test_output):
     ],
 )
 def test_translation(alpha, beta, test_input, test_output):
+    test_vec_equal(translation(alpha, beta), test_input, test_output)
+
+
+@pytest.mark.parametrize(
+    "alpha,beta,test_input,test_output",
+    [
+        ([1, 0], [1, 0]),
+        ([1, 1], [1, 1]),
+        ([0, 1 / 2], [0, 1 / 2]),
+    ],
+)
+def test_identity(test_input, test_output):
+    test_vec_equal(identity(), test_input, test_output)
+
+
+def test_vec_equal(transformation: Mat, test_input, test_output):
+    """Utility function to test vector equalness"""
     D = {"x", "y", "u"}
     point = Vec(D, {"x": test_input[0], "y": test_input[1], "u": 1})
-    actual = translation(alpha, beta) * point
+    actual = transformation * point
+    expected = Vec(D, {"x": test_output[0], "y": test_output[1], "u": 1})
+    assert actual == expected
+
+
+def test_vec_nearly_equal(transformation: Mat, test_input, test_output):
+    """Utility function to test vector near equalness (floating point differences)"""
+    D = {"x", "y", "u"}
+    point = Vec(D, {"x": test_input[0], "y": test_input[1], "u": 1})
+    actual = transformation * point
     expected = Vec(D, {"x": test_output[0], "y": test_output[1], "u": 1})
     diff = actual - expected
     assert diff * diff < 1e-7
