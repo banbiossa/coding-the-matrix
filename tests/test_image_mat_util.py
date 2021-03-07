@@ -17,6 +17,8 @@ from coding_the_matrix.image_mat_util import (
     reflect_y,
     rotation,
     identity,
+    rotation_about,
+    reflect_about,
 )
 import pytest
 from coding_the_matrix.Vec import Vec
@@ -143,7 +145,7 @@ def test_translation(alpha, beta, test_input, test_output):
 
 
 @pytest.mark.parametrize(
-    "alpha,beta,test_input,test_output",
+    "test_input,test_output",
     [
         ([1, 0], [1, 0]),
         ([1, 1], [1, 1]),
@@ -152,6 +154,41 @@ def test_translation(alpha, beta, test_input, test_output):
 )
 def test_identity(test_input, test_output):
     test_vec_equal(identity(), test_input, test_output)
+
+
+@pytest.mark.parametrize(
+    "alpha,beta,test_input,test_output",
+    [
+        (1, 1, [1, 0], [1, 0]),
+        (1, 2, [1, 1], [1, 2]),
+        (0, 1 / 2, [1, 1], [0, 1 / 2]),
+    ],
+)
+def test_scale(alpha, beta, test_input, test_output):
+    test_vec_equal(scale(alpha, beta), test_input, test_output)
+
+
+@pytest.mark.parametrize(
+    "theta,x,y,test_input,test_output",
+    [
+        (0, 1, 1, [1, 0], [1, 0]),
+        (np.pi / 2, 1, 1, [1, 0], [2, 1]),
+    ],
+)
+def test_rotation_about(theta, x, y, test_input, test_output):
+    test_vec_nearly_equal(rotation_about(theta, x, y), test_input, test_output)
+
+
+@pytest.mark.parametrize(
+    "x1,y1,x2,y2,test_input,test_output",
+    [
+        (0, 0, 1, 1, [1, 0], [0, 1]),
+        (-1, 0, 1, 0, [0, 1], [0, -1]),
+        (0, 1, 0, -1, [1, 0], [-1, 0]),
+    ],
+)
+def test_reflect_about(x1, y1, x2, y2, test_input, test_output):
+    test_vec_nearly_equal(reflect_about(x1, y1, x2, y2), test_input, test_output)
 
 
 def test_vec_equal(transformation: Mat, test_input, test_output):

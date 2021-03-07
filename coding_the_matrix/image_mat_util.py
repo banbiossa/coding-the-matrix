@@ -113,7 +113,8 @@ def reflect_about(x1, y1, x2, y2):
         - Translate m
     """
     mx, my = (x1 + x2) / 2, (y1 + y2) / 2
-    theta = np.arctan((y2 - y1) / (x2 - x1))
+    # free error handling around x2-x1=0 with arctan2, compared to acrtan
+    theta = np.arctan2(y2 - y1, x2 - x1)
     return (
         translation(mx, my)
         * rotation(theta)
