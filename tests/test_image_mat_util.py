@@ -191,6 +191,7 @@ def test_reflect_about(x1, y1, x2, y2, test_input, test_output):
     test_vec_nearly_equal(reflect_about(x1, y1, x2, y2), test_input, test_output)
 
 
+@pytest.mark.skip("This isn't a test but a utility")
 def test_vec_equal(transformation: Mat, test_input, test_output):
     """Utility function to test vector equalness"""
     D = {"x", "y", "u"}
@@ -200,6 +201,7 @@ def test_vec_equal(transformation: Mat, test_input, test_output):
     assert actual == expected
 
 
+@pytest.mark.skip("This isn't a test but a utility")
 def test_vec_nearly_equal(transformation: Mat, test_input, test_output):
     """Utility function to test vector near equalness (floating point differences)"""
     D = {"x", "y", "u"}
