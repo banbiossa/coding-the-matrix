@@ -1,11 +1,11 @@
-from coding_the_matrix.Vec import Vec
+from coding_the_matrix import Vec
 
 
 def zero_vec(D):
     """outputs an instance of Vec representing a D-vector
     all of whose entries have value zero
     """
-    return Vec(D, {key: 0 for key in D})
+    return Vec.Vec(D, {key: 0 for key in D})
 
 
 def scalar_mul(v, alpha):
@@ -17,7 +17,7 @@ def scalar_mul(v, alpha):
     Returns:
         a new instance of Vec that represents the scalar-vector product alpha times v
     """
-    return Vec(v.D, {key: alpha * value for key, value in v.f.items()})
+    return Vec.Vec(v.D, {key: alpha * value for key, value in v.f.items()})
 
 
 def list_dot(u, v):
@@ -26,4 +26,4 @@ def list_dot(u, v):
 
 def list2vec(L):
     """Vec with domain {0, 1, ..., len(L)} and v[i] = L[i]"""
-    return Vec({i for i in range(len(L))}, {i: L[i] for i in range(len(L))})
+    return Vec.Vec({i for i in range(len(L))}, {i: L[i] for i in range(len(L))})

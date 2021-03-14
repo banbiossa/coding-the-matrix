@@ -264,10 +264,10 @@ class Vec:
         if isinstance(other, Number):
             return scalar_mul(self, other)
 
-        raise NotImplemented
+        raise NotImplementedError(f"Can't multiply {type(self)} and {type(other)}.")
 
     def __rmul__(self, other):
-        return other * self
+        return self * other
 
     def __sub__(self, other):
         # Returns a vector which is the difference

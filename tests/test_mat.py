@@ -49,3 +49,19 @@ def test_mat_mul_2():
     A = U * U
     for i, j in itertools.product(*A.D):
         assert np.isclose(A[i, j], V[i, j])
+
+
+def test_mat_mul_num():
+    U = listlist2mat([[1, 0], [0, 1]])
+    num = 2
+    actual = U * num
+    expected = listlist2mat([[2, 0], [0, 2]])
+    assert actual == expected
+
+    actual = U * 3
+    expected = listlist2mat([[2, 0], [0, 2]])
+    assert actual != expected
+
+    actual = num * U
+    expected = listlist2mat([[2, 0], [0, 2]])
+    assert actual == expected

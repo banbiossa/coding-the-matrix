@@ -1,10 +1,10 @@
 from coding_the_matrix.solve import solve, get_max_row
 from coding_the_matrix.Vec import Vec
 from coding_the_matrix.GF2 import one
+from coding_the_matrix.matutil import rowdict2mat
 from coding_the_matrix import matutil
 import numpy as np
-
-from matutil import rowdict2mat
+import pytest
 
 
 def test_get_max_row():
@@ -27,7 +27,8 @@ def test_get_max_row_gf2():
     assert vec == Vec({0, 1}, {0: one, 1: 0})
 
 
-def test_solve():
+@pytest.fixture()
+def metal_gnome_matrix():
     D = {"metal", "concrete", "plastic", "water", "electricity"}
     v_gnome = Vec(
         D, {"concrete": 1.3, "plastic": 0.2, "water": 0.8, "electricity": 0.4}
@@ -47,6 +48,11 @@ def test_solve():
     }
     #
     M = matutil.rowdict2mat(rowdict)
+    return M
+
+
+@pytest.fixture()
+def metal_vector():
     b = Vec(
         {"metal", "concrete", "water", "electricity", "plastic"},
         {
@@ -57,6 +63,12 @@ def test_solve():
             "plastic": 215.4,
         },
     )
+    return b
+
+
+def test_solve(metal_gnome_matrix, metal_vector):
+    M = metal_gnome_matrix
+    b = metal_vector
     A = M.transpose()
     x = solve(A, b)
     residual = b - x * M
