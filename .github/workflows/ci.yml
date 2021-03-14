@@ -23,7 +23,7 @@ jobs:
         poetry-version: ${{ matrix.poetry-version }}
     - name: Install dependencies
       run: |
-        poetry install
+        poetry install --no-interaction
     - name: Black
       run: |
         poetry run black coding_the_matrix --check
