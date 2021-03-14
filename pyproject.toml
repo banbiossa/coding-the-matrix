@@ -6,11 +6,11 @@ authors = ["Shota Shimizu <shota.shimizu@quantumblack.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+black = "^20.8b1"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
 jupyterlab = "^3.0"
-black = "*"
 tqdm = "*"
 seaborn = "*"
 pandas = "*"
