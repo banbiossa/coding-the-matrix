@@ -245,4 +245,6 @@ def dot_product_vec_mat_mul(v, M):
     -------
     v * M = 1 * C
     """
-    pass
+    R, C = M.D
+    assert v.D == R
+    return Vec.Vec(C, {c: sum(M[(r, c)] * v[r] for r in R) for c in C})
