@@ -245,3 +245,4 @@ def dot_product_vec_mat_mul(v, M):
     -------
     v * M = 1 * C
     """
+    pass

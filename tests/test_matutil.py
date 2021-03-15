@@ -5,6 +5,10 @@ from coding_the_matrix.matutil import (
     coldict2mat,
     mat2coldict,
     listlist2mat,
+    lin_comb_mat_vec_mul,
+    lin_comb_vec_mat_mul,
+    dot_product_mat_vec_mul,
+    dot_product_vec_mat_mul,
 )
 from coding_the_matrix.Mat import Mat
 import pytest
@@ -106,7 +110,7 @@ def test_listlist2mat_cols():
 
 
 @pytest.fixture
-def metal_gnome_matrix():
+def gnome_metal_matrix():
     D = {"metal", "concrete", "plastic", "water", "electricity"}
     v_gnome = Vec(
         D, {"concrete": 1.3, "plastic": 0.2, "water": 0.8, "electricity": 0.4}
@@ -157,3 +161,31 @@ def gnome_vector():
         },
     )
     return v
+
+
+def test_lin_comb_mat_vec_mul(gnome_metal_matrix, metal_vector, gnome_vector):
+    """metal_gnome*gnome=metal"""
+    actual = lin_comb_mat_vec_mul(gnome_metal_matrix.transpose(), gnome_vector)
+    expected = metal_vector
+    assert actual == expected
+
+
+def test_lin_comb_vec_mat_mul(gnome_metal_matrix, metal_vector, gnome_vector):
+    """gnome*gnome_metal=metal"""
+    actual = lin_comb_vec_mat_mul(gnome_vector, gnome_metal_matrix)
+    expected = metal_vector
+    assert actual == expected
+
+
+def test_dot_product_vec_mat_mul(gnome_metal_matrix, metal_vector, gnome_vector):
+    """metal_gnome*gnome=metal"""
+    actual = dot_product_mat_vec_mul(gnome_metal_matrix.transpose(), gnome_vector)
+    expected = metal_vector
+    assert actual == expected
+
+
+def test_dot_product_mat_vec_mul(gnome_metal_matrix, metal_vector, gnome_vector):
+    """gnome*gnome_metal=metal"""
+    actual = dot_product_vec_mat_mul(gnome_vector, gnome_metal_matrix)
+    expected = metal_vector
+    assert actual == expected
