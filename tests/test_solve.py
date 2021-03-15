@@ -1,10 +1,8 @@
 from coding_the_matrix.solve import solve, get_max_row
 from coding_the_matrix.Vec import Vec
 from coding_the_matrix.GF2 import one
-from coding_the_matrix import matutil
+from coding_the_matrix.matutil import rowdict2mat, value, button_vectors
 import numpy as np
-
-from matutil import rowdict2mat
 
 
 def test_get_max_row():
@@ -46,7 +44,7 @@ def test_solve():
         "shooter": v_shooter,
     }
     #
-    M = matutil.rowdict2mat(rowdict)
+    M = rowdict2mat(rowdict)
     b = Vec(
         {"metal", "concrete", "water", "electricity", "plastic"},
         {
@@ -65,9 +63,9 @@ def test_solve():
 
 def test_buttons_5():
     # 5 * 5 の行列
-    vecdict = matutil.button_vectors(5)
-    B = matutil.rowdict2mat(vecdict)
-    b = matutil.value(vecdict)
+    vecdict = button_vectors(5)
+    B = rowdict2mat(vecdict)
+    b = value(vecdict)
     s = Vec(b.D, {(2, 2): one})
     sol = solve(B, s)
     should_be_s = B * sol
@@ -78,9 +76,9 @@ def test_buttons_5():
 
 def test_buttons_2():
     # 2 by 2
-    vecdict = matutil.button_vectors(2)
-    B = matutil.rowdict2mat(vecdict)
-    b = matutil.value(vecdict)
+    vecdict = button_vectors(2)
+    B = rowdict2mat(vecdict)
+    b = value(vecdict)
     s = Vec(b.D, {(1, 1): one})
     sol = solve(B, s)
     should_be_s = B * sol
