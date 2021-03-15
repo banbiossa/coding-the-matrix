@@ -28,7 +28,7 @@ jobs:
         path: |
           /home/runner/.cache/pypoetry/virtualenvs
           /Users/runner/Library/Caches/pypoetry/virtualenvs
-        key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+        key: venv-${{ matrix.os }}-${{ hashFiles('poetry.lock') }}
     - name: Install dependencies
       run: |
         poetry install --no-interaction
