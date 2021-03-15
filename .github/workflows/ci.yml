@@ -21,9 +21,16 @@ jobs:
       uses: abatilo/actions-poetry@v2.0.0
       with:
         poetry-version: ${{ matrix.poetry-version }}
+    - name: Load cache
+      id: cached-poetry-dependencies
+      uses: actions/cache@v2
+      with:
+        path: /home/runner/.cache/pypoetry/virtualenvs
+        key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
       run: |
         poetry install --no-interaction
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
     - name: Black
       run: |
         poetry run black coding_the_matrix --check
