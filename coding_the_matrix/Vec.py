@@ -267,7 +267,7 @@ class Vec:
         raise NotImplemented
 
     def __rmul__(self, other):
-        return other * self
+        return self * other
 
     def __sub__(self, other):
         # Returns a vector which is the difference
