@@ -9,6 +9,9 @@ import pytest
 
 def test_getitem():
     M = Mat(({0}, {0}), {(0, 0): 1})
+    # doesn't allow indexing to get the vector
+    # M[0] = M[0, :] and M[:, 0] is probably nice to have
+    # don't know how [:] <- this thing works though, __slice__?
     with pytest.raises(AssertionError):
         a = M[0]
 
