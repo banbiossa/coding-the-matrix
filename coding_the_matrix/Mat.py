@@ -2,6 +2,7 @@ import pandas as pd
 from coding_the_matrix import Vec
 from coding_the_matrix import matutil
 from numbers import Number
+import numpy as np
 
 
 def vec_mul_mat(u, M):
@@ -171,3 +172,6 @@ class Mat:
             assert set(cols) == C
             df = df.loc[:, cols]
         return df
+
+    def __abs__(self):
+        return np.sqrt(sum([value ** 2 for value in self.f.values()]))

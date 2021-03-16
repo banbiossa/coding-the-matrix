@@ -248,3 +248,19 @@ def dot_product_vec_mat_mul(v, M):
     R, C = M.D
     assert v.D == R
     return Vec.Vec(C, {c: sum(M[(r, c)] * v[r] for r in R) for c in C})
+
+
+def m_v_mat_mat_mul(A, B):
+    """M*v only """
+    coldict = {}
+    for k, col in mat2coldict(B).items():
+        coldict[k] = A * col
+    return coldict2mat(coldict)
+
+
+def v_m_mat_mat_mul(A, B):
+    """v*M only"""
+    rowdict = {}
+    for k, row in mat2rowdict(A).items():
+        rowdict[k] = row * B
+    return rowdict2mat(rowdict)

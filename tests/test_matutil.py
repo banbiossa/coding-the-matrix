@@ -9,9 +9,14 @@ from coding_the_matrix.matutil import (
     lin_comb_vec_mat_mul,
     dot_product_mat_vec_mul,
     dot_product_vec_mat_mul,
+    m_v_mat_mat_mul,
+    v_m_mat_mat_mul,
 )
 from coding_the_matrix.Mat import Mat
 import pytest
+
+from coding_the_matrix.image_mat_util import rotation
+import numpy as np
 
 
 def test_rowdict2mat():
@@ -189,3 +194,19 @@ def test_dot_product_mat_vec_mul(gnome_metal_matrix, metal_vector, gnome_vector)
     actual = dot_product_vec_mat_mul(gnome_vector, gnome_metal_matrix)
     expected = metal_vector
     assert actual == expected
+
+
+def test_m_v_mat_mat_mul():
+    A = rotation(np.pi / 4)
+    expected = rotation(np.pi / 2)
+    actual = m_v_mat_mat_mul(A, A)
+    diff = actual - expected
+    assert np.isclose(abs(diff), 0)
+
+
+def test_v_m_mat_mat_mul():
+    A = rotation(np.pi / 4)
+    expected = rotation(np.pi / 2)
+    actual = v_m_mat_mat_mul(A, A)
+    diff = actual - expected
+    assert np.isclose(abs(diff), 0)

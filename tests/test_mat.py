@@ -68,3 +68,11 @@ def test_mat_mul_num():
     actual = num * U
     expected = listlist2mat([[2, 0], [0, 2]])
     assert actual == expected
+
+
+def test_abs():
+    U = listlist2mat([[1, 0], [0, 1]])
+    assert abs(U) == np.sqrt(2)
+
+    U = listlist2mat([[1, 0], [0, 0]])
+    assert abs(U) == 1
