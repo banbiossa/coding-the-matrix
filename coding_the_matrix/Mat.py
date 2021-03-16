@@ -1,6 +1,8 @@
 import pandas as pd
 from coding_the_matrix import Vec
 from coding_the_matrix import matutil
+from numbers import Number
+import numpy as np
 
 
 def vec_mul_mat(u, M):
@@ -23,6 +25,14 @@ def mat_mul_mat(U, V):
     for key, row in rowdict.items():
         rowdict[key] = row * V
     return matutil.rowdict2mat(rowdict, col_labels=V.original_labels[1])
+
+
+def mat_mul_num(M, num):
+    """matrix number multiplication (use the underlying vec)"""
+    rowdict = matutil.mat2rowdict(M)
+    for key, row_vec in rowdict.items():
+        rowdict[key] = row_vec * num
+    return matutil.rowdict2mat(rowdict, col_labels=M.original_labels[1])
 
 
 class Mat:
@@ -58,6 +68,9 @@ class Mat:
     def __repr__(self):
         return "Mat({}, {})".format(self.D, self.f)
 
+    def __neg__(self):
+        return self.__class__(self._original_labels, {k: -v for k, v in self.f.items()})
+
     def __eq__(self, other) -> bool:
         """
 
@@ -91,13 +104,17 @@ class Mat:
             return mat_mul_vec(self, other)
         if isinstance(other, self.__class__):
             return mat_mul_mat(self, other)
-        return NotImplemented
+        if isinstance(other, Number):
+            return mat_mul_num(self, other)
+        raise NotImplementedError(f"{type(self)} and {type(other)}")
 
     def __rmul__(self, other):
         """u * M"""
         if isinstance(other, Vec.Vec):
             return vec_mul_mat(other, self)
-        return NotImplemented
+        if isinstance(other, Number):
+            return mat_mul_num(self, other)
+        raise NotImplementedError(f"{type(self)} and {type(other)}")
 
     def __add__(self, other):
         # add each item if other is matrix
@@ -155,3 +172,6 @@ class Mat:
             assert set(cols) == C
             df = df.loc[:, cols]
         return df
+
+    def __abs__(self):
+        return np.sqrt(sum([value ** 2 for value in self.f.values()]))

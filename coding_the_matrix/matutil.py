@@ -1,4 +1,4 @@
-from coding_the_matrix import Vec, Mat, GF2
+from coding_the_matrix import Vec, Mat, GF2, vecutil
 import itertools
 from tqdm import tqdm
 
@@ -193,3 +193,74 @@ def is_triangular(M):
         ):
             return True, R, C
     return False, None, None
+
+
+def lin_comb_mat_vec_mul(M, v):
+    """M*v, using linear-combination definition
+    v[k] is the only operation allowed on v.
+    Use the linear combination definition.
+
+    Args:
+        M: matrix
+        v: vector
+    """
+    R, C = M.D
+    assert v.D == C
+    result = vecutil.zero_vec(R)
+    for col in C:
+        m_col = Vec.Vec(R, {r: M[(r, col)] for r in R})
+        result += m_col * v[col]
+    return result
+
+
+def lin_comb_vec_mat_mul(v, M):
+    """linear combination version of v*M"""
+    R, C = M.D
+    assert v.D == R
+    result = vecutil.zero_vec(C)
+    for row in R:
+        r_col = Vec.Vec(C, {c: M[(row, c)] for c in C})
+        result += r_col * v[row]
+    return result
+
+
+def dot_product_mat_vec_mul(M, v):
+    """Dot product version of M *v
+    RxC * C = Rx1
+    """
+    R, C = M.D
+    assert v.D == C
+    return Vec.Vec(R, {r: sum(M[(r, c)] * v[c] for c in C) for r in R})
+
+
+def dot_product_vec_mat_mul(v, M):
+    """Dot product version of v * M
+
+    Parameters
+    ----------
+    v : 1 * R
+    M : R * C
+
+    Returns
+    -------
+    v * M = 1 * C
+    """
+    R, C = M.D
+    assert v.D == R
+    return Vec.Vec(C, {c: sum(M[(r, c)] * v[r] for r in R) for c in C})
+
+
+def m_v_mat_mat_mul(A, B):
+    """M*v only """
+    coldict = {}
+    for k, col in mat2coldict(B).items():
+        coldict[k] = A * col
+    return coldict2mat(coldict)
+
+
+def v_m_mat_mat_mul(A, B):
+    """v*M only"""
+    rowdict = {}
+    for k, row in mat2rowdict(A).items():
+        rowdict[k] = row * B
+    return rowdict2mat(rowdict)

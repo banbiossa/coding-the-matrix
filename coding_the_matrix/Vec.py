@@ -264,7 +264,7 @@ class Vec:
         if isinstance(other, Number):
             return scalar_mul(self, other)
 
-        raise NotImplemented
+        raise NotImplementedError(f"Can't multiply {type(self)} and {type(other)}.")
 
     def __rmul__(self, other):
         return self * other

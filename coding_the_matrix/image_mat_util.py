@@ -1,10 +1,10 @@
 """
-The original `image_mat_util.py` and `png.py` is way too complex.
-This comes (mostly) from supporting old versions of python (like 2.2 and 3.5), and
- that the original author was reluctant to rely on external libraries
- (as this would indeed make the install process a bit more of a hustle).
+The original `image_mat_util.py` and `png.py` was very complex (lot's of glue code).
+The complexity comes mostly from supporting old versions of python (like 2.2 and 3.5), and
+ the fact that the original author was reluctant to rely on external libraries
+ (maybe as this could make the installation process harder).
 
-I hope to make a simpler API for the same ends here.
+I hope to make a simpler API leveraging numpy and Pillow (less glue code).
 The functionality of each the original module is relatively simple,
 and we are in Python 3.9 with a rich ecosystem for dealing with png and arrays
 (mostly numpy and matplotlib). I hope I can load the work to these libraries and
@@ -22,15 +22,34 @@ import io
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageDraw
-from numbers import Number
+from functools import reduce
+import operator
 
 
-def show(colors, locations, loc_mat=None, col_mat=None):
-    if loc_mat is None:
-        loc_mat = identity()
+def reduce_end_mul(values, end):
+    """Reduce multiply but specifies the end (the original matrix)"""
+    if isinstance(values, Mat.Mat):
+        values = [values]
+    assert isinstance(values, list)
+    assert isinstance(end, Mat.Mat)
+    values.append(end)
+    start = values.pop(0)
+    return reduce(operator.mul, values, start)
+
+
+def show(
+    colors,
+    locations,
+    col_mat=None,
+    loc_mat=None,
+):
+    """Can take lists for loc_mat and col_mat"""
     if col_mat is None:
         col_mat = scale_color(1, 1, 1)
-    im = mat2im(col_mat * colors, loc_mat * locations)
+    if loc_mat is None:
+        loc_mat = identity()
+
+    im = mat2im(reduce_end_mul(col_mat, colors), reduce_end_mul(loc_mat, locations))
     return plt.imshow(im)
 
 
@@ -61,6 +80,14 @@ def to_transformation(funcs: dict) -> Mat.Mat:
     return rowdict2mat(rowdict, col_labels=D)
 
 
+def grayscale():
+    """Return grayscale rgb 77r/256, 151g/256, 28b/256"""
+    funcs = {
+        key: {"r": 77 / 256, "g": 151 / 256, "b": 28 / 256} for key in {"r", "g", "b"}
+    }
+    return to_transformation(funcs)
+
+
 def scale_color(r, g, b):
     """Scale the colors"""
     funcs = {
@@ -69,6 +96,32 @@ def scale_color(r, g, b):
         "b": {"b": b},
     }
     return to_transformation(funcs)
+
+
+def reflect_about(x1, y1, x2, y2):
+    """reflects about the line defined by the 2 points
+
+    Definition:
+        m: ( (x1+x2)/2, (y1+y2)/2 )
+        theta: tan(theta) = (y2-y1)/(x2-x1)
+
+    Plan:
+        - Translate minus m
+        - Rotate minus theta
+        - reflect_x
+        - Rotate theta
+        - Translate m
+    """
+    mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+    # free error handling around x2-x1=0 with arctan2, compared to acrtan
+    theta = np.arctan2(y2 - y1, x2 - x1)
+    return (
+        translation(mx, my)
+        * rotation(theta)
+        * reflect_x()
+        * rotation(-theta)
+        * translation(-mx, -my)
+    )
 
 
 def identity() -> Mat.Mat:
@@ -127,7 +180,7 @@ def reflect_y() -> Mat.Mat:
 
 
 def reflect_x() -> Mat.Mat:
-    """(x, y) -> (-x, y)"""
+    """(x, y) -> (x, -y)"""
     funcs = dict(
         x={"x": 1},
         y={"y": -1},

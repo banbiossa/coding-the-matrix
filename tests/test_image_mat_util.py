@@ -10,12 +10,20 @@ from coding_the_matrix.image_mat_util import (
     fig_size,
     show,
     scale_color,
+    reduce_end_mul,
+    scale,
+    translation,
+    reflect_x,
+    reflect_y,
+    rotation,
+    identity,
+    rotation_about,
+    reflect_about,
 )
 import pytest
-from coding_the_matrix.Mat import Mat
 from coding_the_matrix.Vec import Vec
+from coding_the_matrix.Mat import Mat
 from coding_the_matrix.matutil import listlist2mat, mat2rowdict
-from coding_the_matrix.vecutil import list2vec
 import itertools
 import numpy as np
 
@@ -55,9 +63,11 @@ def test_hex():
     expected = "ff"
     assert actual == expected
 
+    # hex only takes ints
     with pytest.raises(TypeError):
         _hex(255.1)
 
+    # hex only takes ints
     with pytest.raises(TypeError):
         _hex(np.float32(322))
 
@@ -92,6 +102,114 @@ def test_rgb_to_hex(test_input, expected):
     color = Vec({"r", "g", "b"}, {c: test_input[i] for i, c in enumerate("rgb")})
     actual = rgb_to_hex(color)
     assert actual == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,test_output", [([1, 0], [1, 0]), ([0, 1], [0, -1])]
+)
+def test_reflect_x(test_input, test_output):
+    test_vec_equal(reflect_x(), test_input, test_output)
+
+
+@pytest.mark.parametrize(
+    "test_input,test_output", [([1, 0], [-1, 0]), ([0, 1], [0, 1])]
+)
+def test_reflect_y(test_input, test_output):
+    test_vec_equal(reflect_y(), test_input, test_output)
+
+
+@pytest.mark.parametrize(
+    "theta,test_input,test_output",
+    [
+        (0, [1, 0], [1, 0]),
+        (np.pi, [1, 1], [-1, -1]),
+        (np.pi / 2, [1, 0], [0, 1]),
+        (np.pi / 6, [1, 0], [np.sqrt(3) / 2, 1 / 2]),
+    ],
+)
+def test_rotation(theta, test_input, test_output):
+    test_vec_nearly_equal(rotation(theta), test_input, test_output)
+
+
+@pytest.mark.parametrize(
+    "alpha,beta,test_input,test_output",
+    [
+        (0, 0, [1, 0], [1, 0]),
+        (1, 0, [1, 1], [2, 1]),
+        (np.pi, 2, [1, 0], [1 + np.pi, 2]),
+        (0, np.pi / 6, [0, 1 / 2], [0, 1 / 2 + np.pi / 6]),
+    ],
+)
+def test_translation(alpha, beta, test_input, test_output):
+    test_vec_equal(translation(alpha, beta), test_input, test_output)
+
+
+@pytest.mark.parametrize(
+    "test_input,test_output",
+    [
+        ([1, 0], [1, 0]),
+        ([1, 1], [1, 1]),
+        ([0, 1 / 2], [0, 1 / 2]),
+    ],
+)
+def test_identity(test_input, test_output):
+    test_vec_equal(identity(), test_input, test_output)
+
+
+@pytest.mark.parametrize(
+    "alpha,beta,test_input,test_output",
+    [
+        (1, 1, [1, 0], [1, 0]),
+        (1, 2, [1, 1], [1, 2]),
+        (0, 1 / 2, [1, 1], [0, 1 / 2]),
+    ],
+)
+def test_scale(alpha, beta, test_input, test_output):
+    test_vec_equal(scale(alpha, beta), test_input, test_output)
+
+
+@pytest.mark.parametrize(
+    "theta,x,y,test_input,test_output",
+    [
+        (0, 1, 1, [1, 0], [1, 0]),
+        (np.pi / 2, 1, 1, [1, 0], [2, 1]),
+    ],
+)
+def test_rotation_about(theta, x, y, test_input, test_output):
+    test_vec_nearly_equal(rotation_about(theta, x, y), test_input, test_output)
+
+
+@pytest.mark.parametrize(
+    "x1,y1,x2,y2,test_input,test_output",
+    [
+        (0, 0, 1, 1, [1, 0], [0, 1]),
+        (-1, 0, 1, 0, [0, 1], [0, -1]),
+        (0, 1, 0, -1, [1, 0], [-1, 0]),
+    ],
+)
+def test_reflect_about(x1, y1, x2, y2, test_input, test_output):
+    test_vec_nearly_equal(reflect_about(x1, y1, x2, y2), test_input, test_output)
+
+
+@pytest.mark.skip("This isn't a test but a utility")
+def test_vec_equal(transformation: Mat, test_input, test_output):
+    """Utility function to test vector equalness"""
+    D = {"x", "y", "u"}
+    point = Vec(D, {"x": test_input[0], "y": test_input[1], "u": 1})
+    actual = transformation * point
+    expected = Vec(D, {"x": test_output[0], "y": test_output[1], "u": 1})
+    assert actual == expected
+
+
+@pytest.mark.skip("This isn't a test but a utility")
+def test_vec_nearly_equal(transformation: Mat, test_input, test_output):
+    """Utility function to test vector near equalness (floating point differences)"""
+    D = {"x", "y", "u"}
+    point = Vec(D, {"x": test_input[0], "y": test_input[1], "u": 1})
+    actual = transformation * point
+    expected = Vec(D, {"x": test_output[0], "y": test_output[1], "u": 1})
+    diff = actual - expected
+    assert diff * diff < 1e-7
 
 
 def test_corners_to_list():
@@ -134,3 +252,10 @@ def test_scale_colors_2(gray_scale_squares):
     colors, locations = gray_scale_squares
     img = show(colors, locations, col_mat=scale_color(1 / 2, 4, 2))
     assert isinstance(img, matplotlib.image.AxesImage)
+
+
+def test_reduce_end_mul(gray_scale_squares):
+    colors, locations = gray_scale_squares
+    loc_transformations = [scale(3, 2), translation(2, 1)]
+    mat = reduce_end_mul(loc_transformations, locations)
+    assert isinstance(mat, Mat)
