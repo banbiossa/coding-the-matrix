@@ -1,3 +1,5 @@
+from typing import List, Dict
+
 from coding_the_matrix import Vec
 
 
@@ -27,3 +29,18 @@ def list_dot(u, v):
 def list2vec(L):
     """Vec with domain {0, 1, ..., len(L)} and v[i] = L[i]"""
     return Vec.Vec({i for i in range(len(L))}, {i: L[i] for i in range(len(L))})
+
+
+def dictlist_helper(dlist: List[Dict], k):
+    """
+
+    Parameters
+    ----------
+    dlist :
+    k :
+
+    Returns
+    -------
+    List of dic[k] in dlist
+    """
+    return [dic[k] for dic in dlist]
