@@ -22,6 +22,7 @@ Pillow = '*'
 pytest = "*"
 pytest-mock = "*"
 pytest-cov = "*"
+mypy = "^0.812"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
