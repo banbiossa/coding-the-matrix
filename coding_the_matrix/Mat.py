@@ -37,6 +37,12 @@ def mat_mul_num(M, num):
 
 class Mat:
     def __init__(self, labels, function):
+        """The matrix class
+
+        Args:
+            labels ([type]): A list or tuple of length 2. R*C
+            function ([type]): A dict of {R*C: value}
+        """
         self._original_labels = [item.copy() for item in labels]
         labels = [set(label) for label in labels]
         assert len(labels) == 2
@@ -66,7 +72,11 @@ class Mat:
         return self.__class__(self.D, self.f.copy())
 
     def __repr__(self):
-        return "Mat({}, {})".format(self.D, self.f)
+        label = str(self._original_labels)
+        label_str = label[:100] + "..." if len(label) > 100 else label
+        func = str(self.f)
+        func_str = func[:200] + "..." if len(func) > 200 else func
+        return f"Mat(\n\t{label_str}, \n\t{func_str}\n)"
 
     def __neg__(self):
         return self.__class__(self._original_labels, {k: -v for k, v in self.f.items()})

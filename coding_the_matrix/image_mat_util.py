@@ -26,6 +26,21 @@ from functools import reduce
 import operator
 
 
+def file2mat(filepath) -> Tuple[Mat.Mat, Mat.Mat]:
+    """Utility to load from filepath to get a matrix
+    (I will forget this so provide as utility)
+
+    Args:
+        filepath ([type]): filepath to open
+
+    Returns:
+        a color matrix and location matrix
+    """
+    im = Image.open(filepath)
+    as_array = np.array(im)
+    return im2mat(as_array)
+
+
 def reduce_end_mul(values, end):
     """Reduce multiply but specifies the end (the original matrix)"""
     if isinstance(values, Mat.Mat):
