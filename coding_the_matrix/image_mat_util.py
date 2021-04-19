@@ -24,6 +24,11 @@ import pandas as pd
 from PIL import Image, ImageDraw
 from functools import reduce
 import operator
+from tqdm import tqdm
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def file2mat(filepath) -> Tuple[Mat.Mat, Mat.Mat]:
@@ -306,7 +311,9 @@ def mat2im(colors: Mat.Mat, locations: Mat.Mat, im: Image = None, density=1.0):
         im = init_blank_image(locations, density=density)
     d = ImageDraw.Draw(im)
 
+    logger.debug("mat2coldict")
     color_dict = mat2coldict(colors)
+    logger.debug("mat2rowdict")
     location_dict = mat2coldict(locations)
 
     # if all are minus, raise an Error
@@ -316,21 +323,27 @@ def mat2im(colors: Mat.Mat, locations: Mat.Mat, im: Image = None, density=1.0):
         )
 
     # make it square
-    for top_left_point in sorted(color_dict):
-        # color
-        color = color_dict[top_left_point]
-        hex_color = rgb_to_hex(color)
+    miss = []
+    for top_left_point in tqdm(sorted(color_dict)):
+        try:  # take care of index errors
+            # color
+            color = color_dict[top_left_point]
+            hex_color = rgb_to_hex(color)
 
-        # 4 points
-        corner_index = four_corners(*top_left_point)
-        corners = [location_dict[corner] for corner in corner_index]
-        corner_tuples = [
-            (int(corner["x"] * density), int(corner["y"] * density))
-            for corner in corners
-        ]
+            # 4 points
+            corner_index = four_corners(*top_left_point)
+            corners = [location_dict[corner] for corner in corner_index]
+            corner_tuples = [
+                (int(corner["x"] * density), int(corner["y"] * density))
+                for corner in corners
+            ]
 
-        # fill the polygon
-        d.polygon(corner_tuples, fill=hex_color)
+            # fill the polygon
+            d.polygon(corner_tuples, fill=hex_color)
+        except KeyError as e:
+            miss.extend(corner_index)
+
+    # logger.error(f"Missed: {miss}")
 
     return im
 
