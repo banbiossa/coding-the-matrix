@@ -26,24 +26,29 @@ from functools import reduce
 import operator
 from tqdm import tqdm
 import logging
+from typing import List
 
 
 logger = logging.getLogger(__name__)
 
 
-def file2mat(filepath) -> Tuple[Mat.Mat, Mat.Mat]:
+def file2mat(filepath, rows: List[str] = None) -> Tuple[Mat.Mat, Mat.Mat]:
     """Utility to load from filepath to get a matrix
     (I will forget this so provide as utility)
 
     Args:
         filepath ([type]): filepath to open
+        rows: the list of rows to be the domain of the resulting location matrix
+            if None, defaults to ['x', 'y', 'u']
 
     Returns:
         a color matrix and location matrix
     """
+    if rows is None:
+        rows = ["x", "y", "u"]
     im = Image.open(filepath)
     as_array = np.array(im)
-    return im2mat(as_array)
+    return im2mat(as_array, rows=rows)
 
 
 def reduce_end_mul(values, end):
@@ -209,9 +214,9 @@ def reflect_x() -> Mat.Mat:
     return to_transformation(funcs)
 
 
-def im2mat(im: Image) -> Tuple[Mat.Mat, Mat.Mat]:
+def im2mat(im: Image, rows: List[str]) -> Tuple[Mat.Mat, Mat.Mat]:
     """Returns color matrix and location matrix from Pillow image"""
-    return im2colors(im), im2locations(im)
+    return im2colors(im), im2locations(im, rows=rows)
 
 
 def im2colors(im: Image) -> Mat.Mat:
@@ -230,19 +235,27 @@ def im2colors(im: Image) -> Mat.Mat:
     return rowdict2mat(rowdict, col_labels=col_labels)
 
 
-def im2locations(im: Image) -> Mat.Mat:
+def im2locations(im: Image, rows=None) -> Mat.Mat:
     """Get a location matrix from a pillow Image
     Locations is a (x, y) -> (x, y, 1) matrix that is 1 larger than the original color matrix
     Conceptually the corners of the matrix
     """
-    x, y, _ = im.shape
-    col_labels = [(i, j) for i, j in itertools.product(range(x + 1), range(y + 1))]
+    len_x, len_y, _ = im.shape
+    col_labels = [
+        (i, j) for i, j in itertools.product(range(len_x + 1), range(len_y + 1))
+    ]
 
-    rowdict = dict(
-        x=Vec.Vec(set(col_labels), function={key: key[0] for key in col_labels}),
-        y=Vec.Vec(set(col_labels), function={key: key[1] for key in col_labels}),
-        u=Vec.Vec(set(col_labels), function={key: 1 for key in col_labels}),
-    )
+    # make the row labels
+    if rows is None:
+        x, y, u = ("x", "y", "u")
+    else:
+        x, y, u = rows
+
+    rowdict = {
+        x: Vec.Vec(set(col_labels), function={key: key[0] for key in col_labels}),
+        y: Vec.Vec(set(col_labels), function={key: key[1] for key in col_labels}),
+        u: Vec.Vec(set(col_labels), function={key: 1 for key in col_labels}),
+    }
     return rowdict2mat(rowdict, col_labels=col_labels)
 
 

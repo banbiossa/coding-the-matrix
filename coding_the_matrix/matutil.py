@@ -1,6 +1,31 @@
 from coding_the_matrix import Vec, Mat, GF2, vecutil
 import itertools
 from tqdm import tqdm
+from typing import List
+
+
+def rename_row_domain(M: Mat.Mat, rows: List[str]) -> Mat.Mat:
+    """Rename the row domain (R) for matrix
+
+    Args:
+        M ([Mat.Mat]): the matrix to transform
+        rows (List[str]): the new row domain
+
+    Returns: A new matrix with the renamed domain and function
+    """
+    R, C = M.D
+    assert len(R) == len(rows)  # same length domain
+    assert len(set(rows)) == len(rows)  # no duplicates in domain
+
+    # make a mapping of old_domain to new_domain
+    R_to_r = {k: v for k, v in zip(R, rows)}
+
+    # make a rowdict and map the rowdict to new domain
+    rowdict = mat2rowdict(M)
+    new_rowdict = {R_to_r[k]: v for k, v in rowdict.items()}
+
+    # rowdict to new matrix
+    return rowdict2mat(new_rowdict)
 
 
 def efficient_rowdict2mat(rowdict):
