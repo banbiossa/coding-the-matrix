@@ -1,10 +1,10 @@
-from coding_the_matrix import Vec, Mat, GF2, vecutil
+from coding_the_matrix import Vec, GF2, vecutil, Mat
 import itertools
 from tqdm import tqdm
 from typing import List
 
 
-def rename_row_domain(M: Mat.Mat, rows: List[str]) -> Mat.Mat:
+def rename_row_domain(M, rows: List[str]):
     """Rename the row domain (R) for matrix
 
     Args:
