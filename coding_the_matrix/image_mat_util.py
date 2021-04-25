@@ -16,7 +16,12 @@ from math import ceil
 from typing import Tuple
 from coding_the_matrix import Vec
 from coding_the_matrix import Mat
-from coding_the_matrix.matutil import mat2coldict, mat2rowdict, rowdict2mat
+from coding_the_matrix.matutil import (
+    mat2coldict,
+    mat2rowdict,
+    rowdict2mat,
+    rename_row_domain,
+)
 import matplotlib.pyplot as plt
 import io
 import numpy as np
@@ -73,6 +78,12 @@ def show(
         col_mat = scale_color(1, 1, 1)
     if loc_mat is None:
         loc_mat = identity()
+
+    # change location matrix domain to x, y, u (other hard coded parts)
+    domain = locations.D[0]
+    expected_domain = ["x", "y", "u"]
+    if set(domain) != set(expected_domain):
+        locations = rename_row_domain(locations, expected_domain)
 
     im = mat2im(reduce_end_mul(col_mat, colors), reduce_end_mul(loc_mat, locations))
     return plt.imshow(im)
@@ -180,7 +191,8 @@ def scale(alpha, beta) -> Mat.Mat:
 
 
 def rotation(theta) -> Mat.Mat:
-    """Rotate the matrix [x, y] -> [cos(theta)*x - sin(theta)*y, sin(theta)*x + cos(theta)*y]"""
+    """Rotate the matrix
+    [x, y] -> [cos(theta)*x - sin(theta)*y, sin(theta)*x + cos(theta)*y]"""
     funcs = dict(
         x={"x": np.cos(theta), "y": -np.sin(theta)},
         y={"x": np.sin(theta), "y": np.cos(theta)},
@@ -235,12 +247,20 @@ def im2colors(im: Image) -> Mat.Mat:
     return rowdict2mat(rowdict, col_labels=col_labels)
 
 
-def im2locations(im: Image, rows=None) -> Mat.Mat:
-    """Get a location matrix from a pillow Image
-    Locations is a (x, y) -> (x, y, 1) matrix that is 1 larger than the original color matrix
+def blank_locations(len_x: int, len_y: int, rows: list[str] = None) -> Mat.Mat:
+    """Get a blank location matrix from the color matrix size.
+    Locations is a (x, y) -> (x, y, 1) matrix that is 1 larger than the
+    original color matrix
     Conceptually the corners of the matrix
+
+    Args:
+        len_x (int): [description]
+        len_y (int): [description]
+        rows (list[str]):
+
+    Returns:
+        Mat.Mat: [description]
     """
-    len_x, len_y, _ = im.shape
     col_labels = [
         (i, j) for i, j in itertools.product(range(len_x + 1), range(len_y + 1))
     ]
@@ -257,6 +277,16 @@ def im2locations(im: Image, rows=None) -> Mat.Mat:
         u: Vec.Vec(set(col_labels), function={key: 1 for key in col_labels}),
     }
     return rowdict2mat(rowdict, col_labels=col_labels)
+
+
+def im2locations(im: Image, rows=None) -> Mat.Mat:
+    """Get a location matrix from a pillow Image
+    Locations is a (x, y) -> (x, y, 1) matrix that is 1 larger than the
+    original color matrix
+    Conceptually the corners of the matrix
+    """
+    len_x, len_y, _ = im.shape
+    return blank_locations(len_x, len_y)
 
 
 def array_to_dict(array: np.array) -> dict:
@@ -332,7 +362,8 @@ def mat2im(colors: Mat.Mat, locations: Mat.Mat, im: Image = None, density=1.0):
     # if all are minus, raise an Error
     if not any(vec["x"] > 0 and vec["y"] > 0 for vec in location_dict.values()):
         raise RuntimeError(
-            "All values are minus, need at least one to print. Consider translation(+x, +y)"
+            "All values are minus, need at least one to print."
+            " Consider translation(+x, +y)"
         )
 
     # make it square
