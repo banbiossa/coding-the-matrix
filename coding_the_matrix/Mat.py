@@ -7,20 +7,20 @@ import numpy as np
 
 def vec_mul_mat(u, M):
     """vec * matrix multiplication"""
-    assert u.D == M.D[0]
+    assert set(u.D) == set(M.D[0])
     # get a row representation of matrix
     return Vec.Vec(M.D[1], {k: u * vec for k, vec in matutil.mat2coldict(M).items()})
 
 
 def mat_mul_vec(M, u):
     """matrix * vec multiplication"""
-    assert M.D[1] == u.D
+    assert set(M.D[1]) == set(u.D)
     return Vec.Vec(M.D[0], {k: vec * u for k, vec in matutil.mat2rowdict(M).items()})
 
 
 def mat_mul_mat(U, V):
     """matrix * matrix multiplication"""
-    assert U.D[1] == V.D[0]
+    assert set(U.D[1]) == set(V.D[0])
     rowdict = matutil.mat2rowdict(U)
     for key, row in rowdict.items():
         rowdict[key] = row * V
@@ -36,9 +36,15 @@ def mat_mul_num(M, num):
 
 
 class Mat:
-    def __init__(self, labels, function):
-        self._original_labels = [item.copy() for item in labels]
-        labels = [set(label) for label in labels]
+    def __init__(self, domain, function):
+        """The matrix class
+
+        Args:
+            domain([type]): A list or tuple of length 2. R*C
+            function ([type]): A dict of {R*C: value}
+        """
+        self._original_labels = [item.copy() for item in domain]
+        labels = [set(label) for label in domain]
         assert len(labels) == 2
         assert all([isinstance(d, set) for d in labels])
         assert all([isinstance(k, tuple) and len(k) == 2 for k in function.keys()])
@@ -66,7 +72,11 @@ class Mat:
         return self.__class__(self.D, self.f.copy())
 
     def __repr__(self):
-        return "Mat({}, {})".format(self.D, self.f)
+        label = str(self._original_labels)
+        label_str = label[:100] + "..." if len(label) > 100 else label
+        func = str(self.f)
+        func_str = func[:200] + "..." if len(func) > 200 else func
+        return f"Mat(\n\t{label_str}, \n\t{func_str}\n)"
 
     def __neg__(self):
         return self.__class__(self._original_labels, {k: -v for k, v in self.f.items()})
@@ -103,6 +113,8 @@ class Mat:
         if isinstance(other, Vec.Vec):
             return mat_mul_vec(self, other)
         if isinstance(other, self.__class__):
+            return mat_mul_mat(self, other)
+        if other.__class__ == self.__class__:
             return mat_mul_mat(self, other)
         if isinstance(other, Number):
             return mat_mul_num(self, other)

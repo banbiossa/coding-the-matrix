@@ -16,7 +16,12 @@ from math import ceil
 from typing import Tuple
 from coding_the_matrix import Vec
 from coding_the_matrix import Mat
-from coding_the_matrix.matutil import mat2coldict, mat2rowdict, rowdict2mat
+from coding_the_matrix.matutil import (
+    mat2coldict,
+    mat2rowdict,
+    rowdict2mat,
+    rename_row_domain,
+)
 import matplotlib.pyplot as plt
 import io
 import numpy as np
@@ -24,6 +29,31 @@ import pandas as pd
 from PIL import Image, ImageDraw
 from functools import reduce
 import operator
+from tqdm import tqdm
+import logging
+from typing import List
+
+
+logger = logging.getLogger(__name__)
+
+
+def file2mat(filepath, rows: List[str] = None) -> Tuple[Mat.Mat, Mat.Mat]:
+    """Utility to load from filepath to get a matrix
+    (I will forget this so provide as utility)
+
+    Args:
+        filepath ([type]): filepath to open
+        rows: the list of rows to be the domain of the resulting location matrix
+            if None, defaults to ['x', 'y', 'u']
+
+    Returns:
+        a color matrix and location matrix
+    """
+    if rows is None:
+        rows = ["x", "y", "u"]
+    im = Image.open(filepath)
+    as_array = np.array(im)
+    return im2mat(as_array, rows=rows)
 
 
 def reduce_end_mul(values, end):
@@ -48,6 +78,12 @@ def show(
         col_mat = scale_color(1, 1, 1)
     if loc_mat is None:
         loc_mat = identity()
+
+    # change location matrix domain to x, y, u (other hard coded parts)
+    domain = locations.D[0]
+    expected_domain = ["x", "y", "u"]
+    if set(domain) != set(expected_domain):
+        locations = rename_row_domain(locations, expected_domain)
 
     im = mat2im(reduce_end_mul(col_mat, colors), reduce_end_mul(loc_mat, locations))
     return plt.imshow(im)
@@ -155,7 +191,10 @@ def scale(alpha, beta) -> Mat.Mat:
 
 
 def rotation(theta) -> Mat.Mat:
-    """Rotate the matrix [x, y] -> [cos(theta)*x - sin(theta)*y, sin(theta)*x + cos(theta)*y]"""
+    """
+    Rotate the matrix
+    [x, y] -> [cos(theta)*x - sin(theta)*y, sin(theta)*x + cos(theta)*y]
+    """
     funcs = dict(
         x={"x": np.cos(theta), "y": -np.sin(theta)},
         y={"x": np.sin(theta), "y": np.cos(theta)},
@@ -189,9 +228,9 @@ def reflect_x() -> Mat.Mat:
     return to_transformation(funcs)
 
 
-def im2mat(im: Image) -> Tuple[Mat.Mat, Mat.Mat]:
+def im2mat(im: Image, rows: List[str]) -> Tuple[Mat.Mat, Mat.Mat]:
     """Returns color matrix and location matrix from Pillow image"""
-    return im2colors(im), im2locations(im)
+    return im2colors(im), im2locations(im, rows=rows)
 
 
 def im2colors(im: Image) -> Mat.Mat:
@@ -210,20 +249,46 @@ def im2colors(im: Image) -> Mat.Mat:
     return rowdict2mat(rowdict, col_labels=col_labels)
 
 
-def im2locations(im: Image) -> Mat.Mat:
+def blank_locations(len_x: int, len_y: int, rows: list[str] = None) -> Mat.Mat:
+    """Get a blank location matrix from the color matrix size.
+    Locations is a (x, y) -> (x, y, 1) matrix that is 1 larger than the
+    original color matrix
+    Conceptually the corners of the matrix
+
+    Args:
+        len_x (int): [description]
+        len_y (int): [description]
+        rows (list[str]):
+
+    Returns:
+        Mat.Mat: [description]
+    """
+    col_labels = [
+        (i, j) for i, j in itertools.product(range(len_x + 1), range(len_y + 1))
+    ]
+
+    # make the row labels
+    if rows is None:
+        x, y, u = ("x", "y", "u")
+    else:
+        x, y, u = rows
+
+    rowdict = {
+        x: Vec.Vec(set(col_labels), function={key: key[0] for key in col_labels}),
+        y: Vec.Vec(set(col_labels), function={key: key[1] for key in col_labels}),
+        u: Vec.Vec(set(col_labels), function={key: 1 for key in col_labels}),
+    }
+    return rowdict2mat(rowdict, col_labels=col_labels)
+
+
+def im2locations(im: Image, rows=None) -> Mat.Mat:
     """Get a location matrix from a pillow Image
-    Locations is a (x, y) -> (x, y, 1) matrix that is 1 larger than the original color matrix
+    Locations is a (x, y) -> (x, y, 1) matrix that is 1 larger than the
+    original color matrix
     Conceptually the corners of the matrix
     """
-    x, y, _ = im.shape
-    col_labels = [(i, j) for i, j in itertools.product(range(x + 1), range(y + 1))]
-
-    rowdict = dict(
-        x=Vec.Vec(set(col_labels), function={key: key[0] for key in col_labels}),
-        y=Vec.Vec(set(col_labels), function={key: key[1] for key in col_labels}),
-        u=Vec.Vec(set(col_labels), function={key: 1 for key in col_labels}),
-    )
-    return rowdict2mat(rowdict, col_labels=col_labels)
+    len_x, len_y, _ = im.shape
+    return blank_locations(len_x, len_y)
 
 
 def array_to_dict(array: np.array) -> dict:
@@ -291,31 +356,40 @@ def mat2im(colors: Mat.Mat, locations: Mat.Mat, im: Image = None, density=1.0):
         im = init_blank_image(locations, density=density)
     d = ImageDraw.Draw(im)
 
+    logger.debug("mat2coldict")
     color_dict = mat2coldict(colors)
+    logger.debug("mat2rowdict")
     location_dict = mat2coldict(locations)
 
     # if all are minus, raise an Error
     if not any(vec["x"] > 0 and vec["y"] > 0 for vec in location_dict.values()):
         raise RuntimeError(
-            "All values are minus, need at least one to print. Consider translation(+x, +y)"
+            "All values are minus, need at least one to print."
+            " Consider translation(+x, +y)"
         )
 
     # make it square
-    for top_left_point in sorted(color_dict):
-        # color
-        color = color_dict[top_left_point]
-        hex_color = rgb_to_hex(color)
+    miss = []
+    for top_left_point in tqdm(sorted(color_dict)):
+        try:  # take care of index errors
+            # color
+            color = color_dict[top_left_point]
+            hex_color = rgb_to_hex(color)
 
-        # 4 points
-        corner_index = four_corners(*top_left_point)
-        corners = [location_dict[corner] for corner in corner_index]
-        corner_tuples = [
-            (int(corner["x"] * density), int(corner["y"] * density))
-            for corner in corners
-        ]
+            # 4 points
+            corner_index = four_corners(*top_left_point)
+            corners = [location_dict[corner] for corner in corner_index]
+            corner_tuples = [
+                (int(corner["x"] * density), int(corner["y"] * density))
+                for corner in corners
+            ]
 
-        # fill the polygon
-        d.polygon(corner_tuples, fill=hex_color)
+            # fill the polygon
+            d.polygon(corner_tuples, fill=hex_color)
+        except KeyError as e:
+            miss.extend(corner_index)
+
+    # logger.error(f"Missed: {miss}")
 
     return im
 
@@ -364,9 +438,12 @@ def show_colors(colors: Mat.Mat, locations: Mat.Mat, height=1.0):
 
         # 4 points
         corner_index = four_corners(*top_left_point)
-        corners = [location_dict[corner] for corner in corner_index]
-        x, y, u = corners_to_list(corners)
-        ax.fill(x, y, color=hex_color)
+        try:
+            corners = [location_dict[corner] for corner in corner_index]
+            x, y, u = corners_to_list(corners)
+            ax.fill(x, y, color=hex_color)
+        except KeyError as e:
+            pass
     return fig
 
 

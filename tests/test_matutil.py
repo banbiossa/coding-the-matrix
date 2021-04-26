@@ -11,12 +11,22 @@ from coding_the_matrix.matutil import (
     dot_product_vec_mat_mul,
     m_v_mat_mat_mul,
     v_m_mat_mat_mul,
+    rename_row_domain,
 )
 from coding_the_matrix.Mat import Mat
 import pytest
 
 from coding_the_matrix.image_mat_util import rotation
 import numpy as np
+
+
+def test_rename_row_domain():
+    A = rowdict2mat({0: Vec({0, 1}, {0: 1, 1: 2}), 1: Vec({0, 1}, {0: 3, 1: 4})})
+    actual = rename_row_domain(A, ["a", "b"])
+    expected = rowdict2mat(
+        {"a": Vec({0, 1}, {0: 1, 1: 2}), "b": Vec({0, 1}, {0: 3, 1: 4})}
+    )
+    assert actual == expected
 
 
 def test_rowdict2mat():

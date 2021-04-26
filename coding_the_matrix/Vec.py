@@ -207,12 +207,13 @@ def neg(v):
 
 
 class Vec:
-    def __init__(self, domain: set, function: dict):
+    def __init__(self, domain: list, function: dict):
         """A vector is a function f from domain D to a field"""
         if domain is None:
             domain = set(function.keys())
-        assert isinstance(domain, set)
+        # assert isinstance(domain, list)
         assert isinstance(function, dict)
+        assert len(set(domain)) == len(domain)
         self.D = domain
         self.f = function
 
