@@ -191,8 +191,10 @@ def scale(alpha, beta) -> Mat.Mat:
 
 
 def rotation(theta) -> Mat.Mat:
-    """Rotate the matrix
-    [x, y] -> [cos(theta)*x - sin(theta)*y, sin(theta)*x + cos(theta)*y]"""
+    """
+    Rotate the matrix
+    [x, y] -> [cos(theta)*x - sin(theta)*y, sin(theta)*x + cos(theta)*y]
+    """
     funcs = dict(
         x={"x": np.cos(theta), "y": -np.sin(theta)},
         y={"x": np.sin(theta), "y": np.cos(theta)},
@@ -436,9 +438,12 @@ def show_colors(colors: Mat.Mat, locations: Mat.Mat, height=1.0):
 
         # 4 points
         corner_index = four_corners(*top_left_point)
-        corners = [location_dict[corner] for corner in corner_index]
-        x, y, u = corners_to_list(corners)
-        ax.fill(x, y, color=hex_color)
+        try:
+            corners = [location_dict[corner] for corner in corner_index]
+            x, y, u = corners_to_list(corners)
+            ax.fill(x, y, color=hex_color)
+        except KeyError as e:
+            pass
     return fig
 
 
